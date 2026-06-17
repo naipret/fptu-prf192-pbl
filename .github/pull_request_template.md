@@ -2,7 +2,7 @@
 
 ## Purpose / Story Reference
 
-* Resolves Story:
+* Resolves Story: #[issue_number]
 
 ## Description of Changes
 
@@ -10,8 +10,7 @@ Please include a summary of the changes, new functions added, and architectural 
 
 ## Checklist
 
-* [ ] Code compiles without warnings on target platform (`clang -std=c17 -m64`)
-
+* [ ] Code compiles without warnings on target platform (run `make`)
 * [ ] Code formatted using `clang-format` (run `make format`)
 * [ ] Code checked using `clang-tidy` (run `make tidy`)
 * [ ] Data validation handles edge cases correctly (no negative numbers, no overflow)
