@@ -2,7 +2,8 @@
 
 #include "bundle.h"
 
-int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
+int create_bundle(Bundle bundles[], const int *count,
+                  const Bundle *new_bundle) {
   (void)bundles;
   (void)count;
   (void)new_bundle;

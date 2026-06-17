@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int create_order(Order orders[], int *count, Product products[],
+int create_order(Order orders[], const int *count, Product products[],
                  int product_count, const Bundle bundles[], int bundle_count,
                  const Order *new_order);
 void display_order_history(const Order orders[], int count);

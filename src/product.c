@@ -2,7 +2,7 @@
 
 #include "product.h"
 
-int add_product(Product products[], int *count, const Product *new_prod) {
+int add_product(Product products[], const int *count, const Product *new_prod) {
   (void)products;
   (void)count;
   (void)new_prod;
@@ -18,7 +18,7 @@ int update_product(Product products[], int count, int id,
   return 0;
 }
 
-int delete_product(Product products[], int *count, int id,
+int delete_product(Product products[], const int *count, int id,
                    const int active_bundle_prod_ids[],
                    int active_bundle_count) {
   (void)products;

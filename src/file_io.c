@@ -16,9 +16,9 @@ int save_database(const Product products[], int product_count,
   return 0;
 }
 
-int load_database(Product products[], int *product_count, Bundle bundles[],
-                  int *bundle_count, Order orders[], int *order_count,
-                  AdminCredentials *admin) {
+int load_database(Product products[], const int *product_count,
+                  Bundle bundles[], const int *bundle_count, Order orders[],
+                  const int *order_count, AdminCredentials *admin) {
   (void)products;
   (void)product_count;
   (void)bundles;
