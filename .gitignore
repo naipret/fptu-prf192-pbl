@@ -1,0 +1,14 @@
+bin/
+obj/
+*.exe
+*.o
+
+app
+NUL
+
+*.tmp
+*.bak
+admin.txt
+products.txt
+bundles.txt
+orders.txt
