@@ -27,7 +27,7 @@ float calculate_bundle_price(const Bundle *bundle, const Product products[],
   (void)bundle;
   (void)products;
   (void)product_count;
-  return 0.0f;
+  return 0.0F;
 }
 
 int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
