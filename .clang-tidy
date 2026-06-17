@@ -14,6 +14,7 @@ Checks: >
   -readability-magic-numbers,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -bugprone-easily-swappable-parameters,
+  -misc-include-cleaner,
 
 CheckOptions:
   - key: readability-identifier-naming.ConstantCase
