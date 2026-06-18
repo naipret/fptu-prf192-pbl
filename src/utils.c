@@ -124,3 +124,17 @@ int get_safe_float(const char *prompt, float *out_value) {
     return 1;
   }
 }
+void inputString(char *str, int size)
+{
+    if (fgets(str, size, stdin) == NULL)
+    {
+        str[0] = '\0';
+        return;
+    }
+    str[strcspn(str, "\n")] = '\0';
+}
+
+void cont(){
+    printf("Press enter to continue!");
+    getchar();
+}

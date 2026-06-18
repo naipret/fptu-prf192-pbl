@@ -1,7 +1,7 @@
 #include "bundle.h"
 #include <stdio.h>
 #include <string.h>
-
+#include "utils.h"
 int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
   if (new_bundle->discount_rate < 0 || new_bundle->discount_rate > 1) {
     printf("Discount rate must be between 0 and 1.");

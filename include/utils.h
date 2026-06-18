@@ -6,5 +6,6 @@ int get_safe_float(const char *prompt, float *out_value);
 void get_safe_string(const char *prompt, char *out_str, int max_len);
 void clear_input_buffer(void);
 void to_lowercase(char *str);
-
+void inputString(char *str, int size);
+void cont();
 #endif /* UTILS_H */
