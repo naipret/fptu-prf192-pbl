@@ -8,4 +8,5 @@ void clear_input_buffer(void);
 void to_lowercase(char *str);
 void inputString(char *str, int size);
 void cont();
+int confirmAction(char *message);
 #endif /* UTILS_H */

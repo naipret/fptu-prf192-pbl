@@ -138,3 +138,10 @@ void cont(){
     printf("Press enter to continue!");
     getchar();
 }
+int confirmAction(char *message)
+{
+    char choice[5];
+    printf("%s (Y/N): ", message);
+    inputString(choice, sizeof(choice));
+    return (choice[0] == 'Y' || choice[0] == 'y');
+}
