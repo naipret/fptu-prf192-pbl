@@ -87,10 +87,17 @@ float calculate_bundle_price(const Bundle *bundle, const Product products[],
 
 int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
                              int product_count) {
-  (void)bundle;
-  (void)products;
-  (void)product_count;
-  return 0;
+    int min_stock = 10000000;
+    int cnt = bundle->product_count;
+    for(int i = 0;i < cnt;i++){
+        for(int j = 0;j  < product_count;j++){
+            if(bundle->product_ids[i] == products[j].product_id){
+                min_stock = min_stock < products[j].stock_quantity ? min_stock : products[j].stock_quantity;
+                break;
+            }
+        }
+    }
+  return min_stock;
 }
 
 void display_all_bundles(const Bundle bundles[], int count,
