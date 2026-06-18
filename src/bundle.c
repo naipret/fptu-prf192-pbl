@@ -1,13 +1,16 @@
 #include <stdio.h>
-
+#include <string.h>
 #include "bundle.h"
 
-int create_bundle(Bundle bundles[], const int *count,
-                  const Bundle *new_bundle) {
-  (void)bundles;
-  (void)count;
-  (void)new_bundle;
-  return 0;
+int create_bundle(Bundle bundles[], int *count,const Bundle *new_bundle) {
+  if(new_bundle->discount_rate < 0 || new_bundle->discount_rate > 1){
+      printf("Discount rate must be between 0 and 1.");
+      cont();
+      return 0;
+  }
+  bundles[*count] = *new_bundle;
+  (*count)++;
+return 0;
 }
 
 int add_product_to_bundle(Bundle *bundle, int product_id) {

@@ -15,7 +15,7 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
-CC := clang
+CC = gcc
 CFLAGS := -std=c17 -m64 -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wformat=2 \
     -Wformat-security -Wfloat-equal -Wundef -Wsign-conversion -Wcast-align \
     -Wcast-qual -Wmissing-prototypes -Wmissing-declarations -Wunreachable-code \
