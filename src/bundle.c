@@ -71,10 +71,18 @@ int remove_product_from_bundle(Bundle bundles[],int *bundle_count, Bundle *bundl
 
 float calculate_bundle_price(const Bundle *bundle, const Product products[],
                              int product_count) {
-  (void)bundle;
-  (void)products;
-  (void)product_count;
-  return 0.0F;
+    float total = 0.0;
+    int cnt = bundle->product_count;
+    for(int i = 0;i < cnt;i++){
+        for(int j = 0;j  < product_count;j++){
+            if(bundle->product_ids[i] == products[j].product_id){
+                total += products[j].price;
+                break;
+            }
+        }
+    }
+    total = total * (1 - bundle->discount_rate);
+    return total;
 }
 
 int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
