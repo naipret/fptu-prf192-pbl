@@ -30,10 +30,43 @@ int add_product_to_bundle(Bundle *bundle, int product_id) {
     return 0;
 }
 
-int remove_product_from_bundle(Bundle *bundle, int product_id) {
-  (void)bundle;
-  (void)product_id;
-  return 0;
+int remove_product_from_bundle(Bundle bundles[],int *bundle_count, Bundle *bundle, int product_id) {
+    int cnt = bundle->product_count;
+    int index = -1;
+    for(int i = 0;i < cnt;i++){
+        if(bundle->product_ids[i] == product_id){
+            index = i;
+            break;
+        }
+    }
+    if(cnt == 1){
+        if(confirmAction("This action will also delete the bundle. Do you want to continue?")){
+            int index1 = -1;
+            for(int i = 0;i < *bundle_count;i++){
+                if(bundles[i].bundle_id == bundle->bundle_id){
+                    index1 = i;
+                    break;
+                }
+            }
+            for(int i = index1;i < *bundle_count - 1;i++){
+                bundles[i] = bundles[i + 1];
+            }
+            (*bundle_count)--;
+            return 0;
+        }
+        return 0;
+        
+    }
+    if(index == -1){
+        printf("The bundle does not contain this product.\n");
+        cont();
+        return 0;
+    }
+    for(int i = index;i < cnt - 1;i++){
+        bundle->product_ids[i] = bundle->product_ids[i + 1];
+    }
+    bundle->product_count--;
+    return 0;
 }
 
 float calculate_bundle_price(const Bundle *bundle, const Product products[],
