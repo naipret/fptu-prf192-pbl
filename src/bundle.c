@@ -14,9 +14,20 @@ return 0;
 }
 
 int add_product_to_bundle(Bundle *bundle, int product_id) {
-  (void)bundle;
-  (void)product_id;
-  return 0;
+    if(bundle->product_count == MAX_BUNDLE_ITEMS){
+        printf("Maximum limit reached: You can only add up to 10 products to a bundle.\n");
+        cont();
+        return 0;
+    }
+    for(int i = 0;i < bundle->product_count;i++){
+        if(bundle->product_ids[i] == product_id){
+            printf("This product is already in the bundle.\n");
+            cont();
+            return 0;
+        }
+    }
+    bundle->product_ids[bundle->product_count++] = product_id;
+    return 0;
 }
 
 int remove_product_from_bundle(Bundle *bundle, int product_id) {
