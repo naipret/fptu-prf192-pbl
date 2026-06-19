@@ -59,7 +59,7 @@ int verify_admin_login(const char *username, const char *password) {
   char stored_user[MAX_USERNAME_LEN] = {0};
   char stored_hex[(MAX_PASSWORD_LEN * 2) + 2] = {0};
 
-  if (fgets(stored_user, sizeof(stored_user), f) == NULL) {
+  if (fgets(stored_user, (int)sizeof(stored_user), f) == NULL) {
     fclose(f);
     return 0;
   }
@@ -68,7 +68,7 @@ int verify_admin_login(const char *username, const char *password) {
     stored_user[user_idx] = '\0';
   }
 
-  if (fgets(stored_hex, sizeof(stored_hex), f) == NULL) {
+  if (fgets(stored_hex, (int)sizeof(stored_hex), f) == NULL) {
     fclose(f);
     return 0;
   }

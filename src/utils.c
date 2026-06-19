@@ -105,8 +105,15 @@ int get_safe_int(const char *prompt, int *out_value) {
       continue;
     }
 
+    int final_val;
+    if (sign == -1) {
+      final_val = (int)(-val);
+    } else {
+      final_val = (int)val;
+    }
+
     if (out_value != NULL) {
-      *out_value = (int)val;
+      *out_value = final_val;
     }
     return 1;
   }
@@ -149,10 +156,31 @@ int get_safe_float(const char *prompt, float *out_value) {
       continue;
     }
 
-    while (*endptr != '\0' && isspace((unsigned char)*endptr)) {
-      endptr++;
+    double integer_part = 0.0;
+    int has_digits = 0;
+    while (buf[i] >= '0' && buf[i] <= '9') {
+      integer_part = (integer_part * 10.0) + (buf[i] - '0');
+      has_digits = 1;
+      i++;
     }
-    if (*endptr != '\0') {
+
+    double fractional_part = 0.0;
+    double divisor = 1.0;
+    if (buf[i] == '.') {
+      i++;
+      if ((buf[i] < '0' || buf[i] > '9') && !has_digits) {
+        printf("Invalid entry, please try again.\n");
+        continue;
+      }
+      while (buf[i] >= '0' && buf[i] <= '9') {
+        fractional_part = (fractional_part * 10.0) + (buf[i] - '0');
+        divisor *= 10.0;
+        has_digits = 1;
+        i++;
+      }
+    }
+
+    if (!has_digits) {
       printf("Invalid entry, please try again.\n");
       continue;
     }
@@ -168,6 +196,8 @@ int get_safe_float(const char *prompt, float *out_value) {
       continue;
     }
 
+    double val = sign * (integer_part + (fractional_part / divisor));
+
     if (out_value != NULL) {
       *out_value = (float)val;
     }
@@ -179,7 +209,13 @@ void input_string(char *str, int size) {
     str[0] = '\0';
     return;
   }
-  str[strcspn(str, "\n")] = '\0';
+  int len = (int)strlen(str);
+  for (int i = 0; i < len; i++) {
+    if (str[i] == '\n' || str[i] == '\r') {
+      str[i] = '\0';
+      break;
+    }
+  }
 }
 
 void cont(void) {
