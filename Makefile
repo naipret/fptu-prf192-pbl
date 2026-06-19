@@ -29,7 +29,7 @@ TARGET := $(BIN_DIR)/$(TARGET_NAME)$(EXE_EXT)
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
-.PHONY: all clean format tidy
+.PHONY: all clean format tidy bundle
 
 all: $(TARGET)
 
@@ -54,3 +54,6 @@ format:
 
 tidy:
 	clang-tidy $(SRC) -- $(CFLAGS)
+
+bundle:
+	python3 scripts/bundle.py
