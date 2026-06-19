@@ -5,7 +5,8 @@
  * @brief Prompts the user and reads a safe integer value.
  * @param prompt The string prompt to show to the user.
  * @param out_value Pointer to integer where the parsed value will be stored.
- * @return 1 if successfully parsed a valid integer, 0 if canceled by typing '0'.
+ * @return 1 if successfully parsed a valid integer, 0 if canceled by typing
+ * '0'.
  */
 int get_safe_int(const char *prompt, int *out_value);
 
@@ -56,4 +57,3 @@ void cont(void);
 int confirm_action(const char *message);
 
 #endif /* UTILS_H */
-
