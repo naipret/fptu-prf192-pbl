@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "bundle.h"
+#include "product.h"
 #include "utils.h"
 
 int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
@@ -115,50 +116,44 @@ int remove_product_from_bundle(Bundle bundles[], int *bundle_count,
   bundle->product_count--;
   return 1;
 }
-
 float calculate_bundle_price(const Bundle *bundle, const Product products[],
                              int product_count) {
   if (bundle == NULL || products == NULL || product_count < 0) {
     return 0.0f;
   }
-  float total = 0.0f;
-  int cnt = bundle->product_count;
-  for (int i = 0; i < cnt; i++) {
-    for (int j = 0; j < product_count; j++) {
-      if (bundle->product_ids[i] == products[j].product_id) {
-        total += products[j].price;
-        break;
-      }
+  float sum = 0.0f;
+  for (int i = 0; i < bundle->product_count; i++) {
+    int prod_id = bundle->product_ids[i];
+    int prod_idx = find_product_by_id(products, product_count, prod_id);
+    if (prod_idx != -1) {
+      sum += products[prod_idx].price;
     }
   }
-  total = total * (1.0f - bundle->discount_rate);
-  return total;
+  return sum * (1.0f - bundle->discount_rate);
 }
 
 int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
                              int product_count) {
-  if (bundle == NULL || products == NULL || product_count < 0 ||
-      bundle->product_count <= 0) {
+  if (bundle == NULL || products == NULL || product_count < 0) {
+    return 0;
+  }
+  if (bundle->product_count <= 0) {
     return 0;
   }
   int min_stock = -1;
-  int cnt = bundle->product_count;
-  for (int i = 0; i < cnt; i++) {
-    int found = 0;
-    for (int j = 0; j < product_count; j++) {
-      if (bundle->product_ids[i] == products[j].product_id) {
-        if (min_stock == -1 || products[j].stock_quantity < min_stock) {
-          min_stock = products[j].stock_quantity;
-        }
-        found = 1;
-        break;
-      }
-    }
-    if (!found) {
+  for (int i = 0; i < bundle->product_count; i++) {
+    int prod_id = bundle->product_ids[i];
+    int prod_idx = find_product_by_id(products, product_count, prod_id);
+    if (prod_idx == -1) {
+      // If a product inside the bundle doesn't exist, we consider stock to be 0
       return 0;
     }
+    int stock = products[prod_idx].stock_quantity;
+    if (min_stock == -1 || stock < min_stock) {
+      min_stock = stock;
+    }
   }
-  return min_stock == -1 ? 0 : min_stock;
+  return (min_stock == -1) ? 0 : min_stock;
 }
 
 void display_all_bundles(const Bundle bundles[], int count,

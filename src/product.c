@@ -177,7 +177,7 @@ int delete_product(Product products[], int *count, int id,
 }
 
 int find_product_by_id(const Product products[], int count, int id) {
-  if (products == NULL || count < 0) {
+  if (products == NULL || count < 0 || id <= 0) {
     return -1;
   }
   for (int i = 0; i < count; i++) {
