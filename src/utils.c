@@ -1,6 +1,4 @@
 #include <ctype.h>
-#include <errno.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +33,7 @@ void get_safe_string(const char *prompt, char *out_str, int max_len) {
     out_str[0] = '\0';
     return;
   }
-  size_t len = strlen(out_str);
+  int len = (int)strlen(out_str);
   if (len > 0 && out_str[len - 1] == '\n') {
     out_str[len - 1] = '\0';
   } else {
@@ -55,24 +53,54 @@ int get_safe_int(const char *prompt, int *out_value) {
       return 0;
     }
 
-    char *endptr;
-    errno = 0;
-    long val = strtol(buf, &endptr, 10);
+    int i = 0;
+    // Skip leading whitespace
+    while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
+                              buf[i] == '\n' || buf[i] == '\r')) {
+      i++;
+    }
 
-    if (endptr == buf) {
+    if (buf[i] == '\0') {
       printf("Invalid entry, please try again.\n");
       continue;
     }
 
-    while (*endptr != '\0' && isspace((unsigned char)*endptr)) {
-      endptr++;
+    int sign = 1;
+    if (buf[i] == '-') {
+      sign = -1;
+      i++;
+    } else if (buf[i] == '+') {
+      i++;
     }
-    if (*endptr != '\0') {
+
+    if (buf[i] < '0' || buf[i] > '9') {
       printf("Invalid entry, please try again.\n");
       continue;
     }
 
-    if (errno == ERANGE || val < INT_MIN || val > INT_MAX) {
+    long long val = 0;
+    int overflow = 0;
+    while (buf[i] >= '0' && buf[i] <= '9') {
+      val = (val * 10) + (buf[i] - '0');
+      // Detect overflow of 32-bit signed int (Max: 2147483647, Min:
+      // -2147483648)
+      if (sign == 1 && val > 2147483647LL) {
+        val = 2147483647LL;
+        overflow = 1;
+      } else if (sign == -1 && val > 2147483648LL) {
+        val = 2147483648LL;
+        overflow = 1;
+      }
+      i++;
+    }
+
+    // Skip trailing whitespace
+    while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
+                              buf[i] == '\n' || buf[i] == '\r')) {
+      i++;
+    }
+
+    if (buf[i] != '\0' || overflow) {
       printf("Invalid entry, please try again.\n");
       continue;
     }
@@ -96,11 +124,27 @@ int get_safe_float(const char *prompt, float *out_value) {
       return 0;
     }
 
-    char *endptr;
-    errno = 0;
-    double val = strtod(buf, &endptr);
+    int i = 0;
+    // Skip leading whitespace
+    while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
+                              buf[i] == '\n' || buf[i] == '\r')) {
+      i++;
+    }
 
-    if (endptr == buf) {
+    if (buf[i] == '\0') {
+      printf("Invalid entry, please try again.\n");
+      continue;
+    }
+
+    int sign = 1;
+    if (buf[i] == '-') {
+      sign = -1;
+      i++;
+    } else if (buf[i] == '+') {
+      i++;
+    }
+
+    if ((buf[i] < '0' || buf[i] > '9') && buf[i] != '.') {
       printf("Invalid entry, please try again.\n");
       continue;
     }
@@ -113,7 +157,13 @@ int get_safe_float(const char *prompt, float *out_value) {
       continue;
     }
 
-    if (errno == ERANGE) {
+    // Skip trailing whitespace
+    while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
+                              buf[i] == '\n' || buf[i] == '\r')) {
+      i++;
+    }
+
+    if (buf[i] != '\0') {
       printf("Invalid entry, please try again.\n");
       continue;
     }
