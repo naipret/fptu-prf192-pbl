@@ -124,3 +124,22 @@ int get_safe_float(const char *prompt, float *out_value) {
     return 1;
   }
 }
+void input_string(char *str, int size) {
+  if (fgets(str, size, stdin) == NULL) {
+    str[0] = '\0';
+    return;
+  }
+  str[strcspn(str, "\n")] = '\0';
+}
+
+void cont(void) {
+  printf("Press enter to continue!");
+  (void)getchar();
+}
+
+int confirm_action(const char *message) {
+  char choice[5];
+  printf("%s (Y/N): ", message);
+  input_string(choice, sizeof(choice));
+  return (choice[0] == 'Y' || choice[0] == 'y');
+}
