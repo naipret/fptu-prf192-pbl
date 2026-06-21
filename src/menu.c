@@ -52,6 +52,9 @@ void display_customer_menu(void) {
         printf("1. Search by Name\n");
         printf("2. Filter by Category\n");
         printf("3. Filter by Price Range\n");
+        printf("4. Sort by Price (Ascending)\n");
+        printf("5. Sort by Price (Descending)\n");
+        printf("6. Sort by Name (A-Z)\n");
         printf("0. Back\n");
         printf("--------------------------------\n");
 
@@ -98,6 +101,27 @@ void display_customer_menu(void) {
           }
           filter_product_by_price(products, product_count, min_price,
                                   max_price);
+          break;
+        }
+        case 4: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Ascending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 1);
+          break;
+        }
+        case 5: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Descending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 0);
+          break;
+        }
+        case 6: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Name (Alphabetical) ---\n");
+          bubble_sort_by_name(temp_list, product_count);
           break;
         }
         default:

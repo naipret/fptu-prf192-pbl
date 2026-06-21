@@ -305,3 +305,41 @@ void filter_product_by_price(const Product products[], int count,
     printf("No products found.\n");
   }
 }
+
+void bubble_sort_by_price(Product products[], int count, int ascending) {
+  if (products == NULL || count < 0) {
+    return;
+  }
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = 0; j < count - i - 1; j++) {
+      int condition = 0;
+      if (ascending != 0) {
+        condition = (products[j].price > products[j + 1].price);
+      } else {
+        condition = (products[j].price < products[j + 1].price);
+      }
+      if (condition != 0) {
+        Product temp = products[j];
+        products[j] = products[j + 1];
+        products[j + 1] = temp;
+      }
+    }
+  }
+  display_all_products(products, count);
+}
+
+void bubble_sort_by_name(Product products[], int count) {
+  if (products == NULL || count < 0) {
+    return;
+  }
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = 0; j < count - i - 1; j++) {
+      if (strcmp(products[j].product_name, products[j + 1].product_name) > 0) {
+        Product temp = products[j];
+        products[j] = products[j + 1];
+        products[j + 1] = temp;
+      }
+    }
+  }
+  display_all_products(products, count);
+}

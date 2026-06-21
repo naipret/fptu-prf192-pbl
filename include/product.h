@@ -86,4 +86,20 @@ void filter_product_by_category(const Product products[], int count,
 void filter_product_by_price(const Product products[], int count,
                              float min_price, float max_price);
 
+/**
+ * @brief Sorts products by price using Bubble Sort and displays the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param ascending 1 for ascending order, 0 for descending order.
+ */
+void bubble_sort_by_price(Product products[], int count, int ascending);
+
+/**
+ * @brief Sorts products alphabetically by name using Bubble Sort and displays
+ * the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ */
+void bubble_sort_by_name(Product products[], int count);
+
 #endif /* PRODUCT_H */
