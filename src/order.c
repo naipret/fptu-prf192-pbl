@@ -254,3 +254,35 @@ void print_best_seller_products(const Order orders[], int order_count, const Pro
   
   cont();                   
 }
+
+void print_best_seller_bundles(const Order orders[], int order_count, const Bundle bundles[], int bundle_count){
+  if (orders == NULL || order_count <= 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+  int best_seller = 0;
+  for(int j = 0;j < bundle_count;j++){
+    best_seller = best_seller < bundles[j].total_sold ? bundles[j].total_sold : best_seller;
+  }
+
+  if (best_seller == 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+  int stt = 1;
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Bundle Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+  for(int i = 0; i < bundle_count; i++){
+    if(bundles[i].total_sold == best_seller){
+      printf("| %-3d | %-33s | %-10d |\n", stt++, bundles[i].bundle_name, best_seller);
+    }
+  } 
+  printf("+-----+-----------------------------------+------------+\n");
+  
+  cont();                   
+}
+
+
