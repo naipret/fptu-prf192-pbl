@@ -30,6 +30,7 @@ typedef struct {
   char brand[MAX_BRAND_LEN];
   float price;
   int stock_quantity;
+  int total_sold;
 } Product;
 
 // Bundle composition structure
@@ -40,6 +41,7 @@ typedef struct {
   int product_count;
   float discount_rate;
   float bundle_price;
+  int total_sold;
 } Bundle;
 
 // Order entry structure

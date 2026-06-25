@@ -43,6 +43,7 @@ int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
   }
 
   bundles[*count] = *new_bundle;
+  bundles[*count].total_sold = 0;
   (*count)++;
   return 1;
 }

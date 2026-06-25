@@ -221,3 +221,36 @@ void print_revenue_report(const Order orders[], int order_count,
   printf("Total count of products sold: %d\n", product_sold);
   printf("Total count of bundles sold: %d\n", bundle_sold);
 }
+
+
+
+void print_best_seller_products(const Order orders[], int order_count, const Product products[], int product_count){
+  if (orders == NULL || order_count <= 0) {
+    printf("No products or bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+  int best_seller = 0;
+  for(int j = 0;j < product_count;j++){
+    best_seller = best_seller < products[j].total_sold ? products[j].total_sold : best_seller;
+  }
+
+  if (best_seller == 0) {
+    printf("No products or bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Product Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+
+  int stt = 1;
+  for(int i = 0; i < product_count; i++){
+    if(products[i].total_sold == best_seller){
+      printf("| %-3d | %-33s | %-10d |\n", stt++, products[i].product_name, best_seller);
+    }
+  } 
+  printf("+-----+-----------------------------------+------------+\n");
+  
+  cont();                   
+}
