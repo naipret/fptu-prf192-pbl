@@ -126,7 +126,7 @@ static void finalize_order_metadata(Order *ord, const Order *orders, int count,
 
 int create_order(Order orders[], int *count, Product products[],
                  int product_count, const Bundle bundles[], int bundle_count,
-                 const Order *new_order) {
+                 const Order *new_order){
   if (orders == NULL || count == NULL || products == NULL || bundles == NULL ||
       new_order == NULL) {
     return 0;
@@ -169,6 +169,19 @@ int create_order(Order orders[], int *count, Product products[],
   // 4. Finalize Metadata and append
   finalize_order_metadata(&orders[*count], orders, *count, new_order,
                           item_price);
+  if(orders[*count].is_bundle == 0){
+    int product_index = find_product_by_id(products,product_count,orders[*count].item_id);
+    products[product_index].total_sold += orders[*count].quantity;
+    products[product_index].stock_quantity -= orders[*count].quantity;
+  }
+  else{
+    int bundle_index = find_bundle_by_id(bundles, bundle_count,orders[*count].item_id);
+    for(int i = 0;i < bundles[bundle_index].product_count;i++){
+      int product_index = find_product_by_id(products,product_count,bundles[bundle_index].product_ids[i]);
+      products[product_index].total_sold += orders[*count].quantity;
+      products[product_index].stock_quantity -= orders[*count].quantity;
+    }
+  }
   (*count)++;
   return 1;
 }
@@ -285,4 +298,33 @@ void print_best_seller_bundles(const Order orders[], int order_count, const Bund
   cont();                   
 }
 
+void alert_low_stock(const Product products[], int product_count) {
+    int check = 1;
 
+
+    const char* border = "+------+--------+----------------------------------------------------+--------------+";
+
+    printf("%s\n", border);
+    printf("| %-4s | %-6s | %-50s | %-12s |\n", "NO", "ID", "NAME", "CURRENT STOCK");
+    printf("%s\n", border);
+
+    for (int i = 0; i < product_count; i++) {
+        if (products[i].stock_quantity < 5) {
+            check = 0;
+
+            printf("| %-4d | %-6d | %-50.50s | %-12d |\n", 
+                   i + 1, 
+                   products[i].product_id, 
+                   products[i].product_name, 
+                   products[i].stock_quantity);
+        }
+    }
+
+    if (!check) {
+        printf("%s\n", border);
+    } else {
+        printf("\nAll products have sufficient stock levels.\n");
+    }
+
+    cont();
+}
