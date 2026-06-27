@@ -416,9 +416,191 @@ void display_admin_menu(void) {
       }
       break;
     }
-    case 2:
-      printf("Bundle management is not implemented yet.\n");
+    case 2: {
+      int bundle_choice = -1;
+      while (1) {
+        printf("\n--- Bundle Management Sub-Menu ---\n");
+        printf("1. View All Bundles\n");
+        printf("2. Create Bundle\n");
+        printf("3. Add Product to Bundle\n");
+        printf("4. Remove Product from Bundle\n");
+        printf("0. Back\n");
+        printf("----------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &bundle_choice) == 0 ||
+            bundle_choice == 0) {
+          break;
+        }
+
+        switch (bundle_choice) {
+        case 1:
+          display_all_bundles(bundles, bundle_count, products, product_count);
+          break;
+        case 2: {
+          printf("\n--- Create Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          if (find_bundle_by_id(bundles, bundle_count, b_id) != -1) {
+            printf("Error: Bundle ID %d already exists.\n", b_id);
+            cont();
+            break;
+          }
+
+          char b_name[MAX_NAME_LEN] = {0};
+          get_safe_string("Enter Bundle Name (0 to cancel): ", b_name, MAX_NAME_LEN);
+          if (strcmp(b_name, "0") == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          float discount_rate = 0.0F;
+          if (get_safe_float("Enter Discount Rate (0.0 to 1.0, 0 to cancel): ", &discount_rate) == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int product_ids[MAX_BUNDLE_ITEMS];
+          int p_count = 0;
+          while (p_count < MAX_BUNDLE_ITEMS) {
+            int prod_id = 0;
+            printf("Adding product %d/%d to the bundle.\n", p_count + 1, MAX_BUNDLE_ITEMS);
+            if (get_safe_int("Enter Product ID (0 to finish/cancel if empty): ", &prod_id) == 0 || prod_id == 0) {
+              break;
+            }
+
+            int p_idx = find_product_by_id(products, product_count, prod_id);
+            if (p_idx == -1) {
+              printf("Error: Product ID %d not found in inventory.\n", prod_id);
+              continue;
+            }
+
+            int already_added = 0;
+            for (int k = 0; k < p_count; k++) {
+              if (product_ids[k] == prod_id) {
+                already_added = 1;
+                break;
+              }
+            }
+            if (already_added != 0) {
+              printf("Error: Product already added to this bundle.\n");
+              continue;
+            }
+
+            product_ids[p_count] = prod_id;
+            p_count++;
+          }
+
+          if (p_count < 1) {
+            printf("Error: A bundle must contain at least 1 product.\n");
+            cont();
+            break;
+          }
+
+          Bundle new_b;
+          memset(&new_b, 0, sizeof(new_b));
+          new_b.bundle_id = b_id;
+          strncpy(new_b.bundle_name, b_name, MAX_NAME_LEN - 1);
+          new_b.discount_rate = discount_rate;
+          new_b.product_count = p_count;
+          for (int k = 0; k < p_count; k++) {
+            new_b.product_ids[k] = product_ids[k];
+          }
+          new_b.bundle_price = calculate_bundle_price(&new_b, products, product_count);
+
+          if (create_bundle(bundles, &bundle_count, &new_b) != 0) {
+            printf("Bundle created successfully!\n");
+          } else {
+            printf("Failed to create bundle.\n");
+          }
+          break;
+        }
+        case 3: {
+          printf("\n--- Add Product to Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          int b_idx = find_bundle_by_id(bundles, bundle_count, b_id);
+          if (b_idx == -1) {
+            printf("Error: Bundle ID %d not found.\n", b_id);
+            cont();
+            break;
+          }
+
+          if (bundles[b_idx].product_count >= MAX_BUNDLE_ITEMS) {
+            printf("Error: Bundle is full.\n");
+            cont();
+            break;
+          }
+
+          int prod_id = 0;
+          if (get_safe_int("Enter Product ID to add (0 to cancel): ", &prod_id) == 0 ||
+              prod_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int p_idx = find_product_by_id(products, product_count, prod_id);
+          if (p_idx == -1) {
+            printf("Error: Product ID %d not found in inventory.\n", prod_id);
+            cont();
+            break;
+          }
+
+          if (add_product_to_bundle(&bundles[b_idx], prod_id) != 0) {
+            bundles[b_idx].bundle_price = calculate_bundle_price(&bundles[b_idx], products, product_count);
+            printf("Product added to bundle successfully!\n");
+          } else {
+            printf("Failed to add product to bundle.\n");
+          }
+          break;
+        }
+        case 4: {
+          printf("\n--- Remove Product from Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          int b_idx = find_bundle_by_id(bundles, bundle_count, b_id);
+          if (b_idx == -1) {
+            printf("Error: Bundle ID %d not found.\n", b_id);
+            cont();
+            break;
+          }
+
+          int prod_id = 0;
+          if (get_safe_int("Enter Product ID to remove (0 to cancel): ", &prod_id) == 0 ||
+              prod_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int old_count = bundle_count;
+          if (remove_product_from_bundle(bundles, &bundle_count, &bundles[b_idx], prod_id) != 0) {
+            printf("Product removed successfully.\n");
+            if (bundle_count == old_count) {
+              bundles[b_idx].bundle_price = calculate_bundle_price(&bundles[b_idx], products, product_count);
+            }
+          } else {
+            printf("Failed to remove product.\n");
+          }
+          break;
+        }
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
+    }
     case 3: {
       int report_choice = -1;
       while (1) {
