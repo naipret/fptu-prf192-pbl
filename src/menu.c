@@ -366,9 +366,44 @@ void display_admin_menu(void) {
     case 2:
       printf("Bundle management is not implemented yet.\n");
       break;
-    case 3:
-      printf("Revenue and reports are not implemented yet.\n");
+    case 3: {
+      int report_choice = -1;
+      while (1) {
+        printf("\n--- Revenue & Reports Sub-Menu ---\n");
+        printf("1. View Revenue Report\n");
+        printf("2. View Best-Selling Product\n");
+        printf("3. View Best-Selling Bundle\n");
+        printf("4. View Low-Stock Warning Alerts\n");
+        printf("0. Back\n");
+        printf("----------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &report_choice) == 0 ||
+            report_choice == 0) {
+          break;
+        }
+
+        switch (report_choice) {
+        case 1:
+          print_revenue_report(orders, order_count, products, product_count,
+                               bundles, bundle_count);
+          break;
+        case 2:
+          print_best_seller_products(orders, order_count, products,
+                                     product_count, bundles, bundle_count);
+          break;
+        case 3:
+          print_best_seller_bundles(orders, order_count, bundles, bundle_count);
+          break;
+        case 4:
+          alert_low_stock(products, product_count);
+          break;
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
+    }
     case 4:
       if (save_database(products, product_count, bundles, bundle_count, orders,
                         order_count, &admin) != 0) {
