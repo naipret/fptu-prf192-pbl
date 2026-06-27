@@ -57,4 +57,49 @@ int find_product_by_id(const Product products[], int count, int id);
  */
 void display_all_products(const Product products[], int count);
 
+/**
+ * @brief Searches for products by name (case-insensitive substring match).
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param query The string to search for.
+ */
+void search_product_by_name(const Product products[], int count,
+                            const char *query);
+
+/**
+ * @brief Filters products by category (matching strictly one of "Phone",
+ * "Laptop", "Tablet", "Accessory").
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param category The category string to match.
+ */
+void filter_product_by_category(const Product products[], int count,
+                                const char *category);
+
+/**
+ * @brief Filters products by price range (MinPrice <= price <= MaxPrice).
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param min_price Minimum price boundary.
+ * @param max_price Maximum price boundary.
+ */
+void filter_product_by_price(const Product products[], int count,
+                             float min_price, float max_price);
+
+/**
+ * @brief Sorts products by price using Bubble Sort and displays the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param ascending 1 for ascending order, 0 for descending order.
+ */
+void bubble_sort_by_price(Product products[], int count, int ascending);
+
+/**
+ * @brief Sorts products alphabetically by name using Bubble Sort and displays
+ * the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ */
+void bubble_sort_by_name(Product products[], int count);
+
 #endif /* PRODUCT_H */

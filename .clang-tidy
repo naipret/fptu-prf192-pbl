@@ -15,6 +15,7 @@ Checks: >
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -bugprone-easily-swappable-parameters,
   -misc-include-cleaner,
+  -readability-function-cognitive-complexity,
 
 CheckOptions:
   - key: readability-identifier-naming.ConstantCase
@@ -42,6 +43,6 @@ CheckOptions:
     value: lower_case
 
   - key: readability-identifier-naming.TypedefCase
-    value: lower_case
+    value: CamelCase
   - key: readability-identifier-naming.PublicMemberCase
     value: lower_case
