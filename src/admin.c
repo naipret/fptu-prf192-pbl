@@ -7,11 +7,11 @@
 #include "utils.h"
 
 static int validate_credential_string(const char *str, int max_len) {
-  size_t len = strlen(str);
-  if (len < 4 || len >= (size_t)max_len) {
+  int len = (int)strlen(str);
+  if (len < 4 || len >= max_len) {
     return 0;
   }
-  for (size_t i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     if (isspace((unsigned char)str[i])) {
       return 0;
     }
@@ -59,21 +59,21 @@ int verify_admin_login(const char *username, const char *password) {
   char stored_user[MAX_USERNAME_LEN] = {0};
   char stored_hex[(MAX_PASSWORD_LEN * 2) + 2] = {0};
 
-  if (fgets(stored_user, sizeof(stored_user), f) == NULL) {
+  if (fgets(stored_user, (int)sizeof(stored_user), f) == NULL) {
     fclose(f);
     return 0;
   }
-  size_t user_idx = strcspn(stored_user, "\r\n");
-  if (user_idx < sizeof(stored_user)) {
+  int user_idx = (int)strcspn(stored_user, "\r\n");
+  if (user_idx < (int)sizeof(stored_user)) {
     stored_user[user_idx] = '\0';
   }
 
-  if (fgets(stored_hex, sizeof(stored_hex), f) == NULL) {
+  if (fgets(stored_hex, (int)sizeof(stored_hex), f) == NULL) {
     fclose(f);
     return 0;
   }
-  size_t hex_idx = strcspn(stored_hex, "\r\n");
-  if (hex_idx < sizeof(stored_hex)) {
+  int hex_idx = (int)strcspn(stored_hex, "\r\n");
+  if (hex_idx < (int)sizeof(stored_hex)) {
     stored_hex[hex_idx] = '\0';
   }
   fclose(f);
@@ -84,11 +84,11 @@ int verify_admin_login(const char *username, const char *password) {
 
   /* Obfuscate the input password to compare directly */
   char input_hex[(MAX_PASSWORD_LEN * 2) + 1] = {0};
-  size_t input_len = strlen(password);
+  int input_len = (int)strlen(password);
   if (input_len >= MAX_PASSWORD_LEN) {
     return 0;
   }
-  for (size_t i = 0; i < input_len; i++) {
+  for (int i = 0; i < input_len; i++) {
     unsigned char c = (unsigned char)password[i];
     unsigned char obfuscated = (unsigned char)(c ^ 0x5A);
     sprintf(input_hex + (i * 2), "%02X", obfuscated);

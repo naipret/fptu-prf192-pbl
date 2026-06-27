@@ -45,9 +45,92 @@ void display_customer_menu(void) {
       printf("\n--- Product Catalog ---\n");
       display_all_products(products, product_count);
       break;
-    case 2:
-      printf("Search/Sort function is not implemented yet.\n");
+    case 2: {
+      int search_choice = -1;
+      while (1) {
+        printf("\n--- Search & Filter Products ---\n");
+        printf("1. Search by Name\n");
+        printf("2. Filter by Category\n");
+        printf("3. Filter by Price Range\n");
+        printf("4. Sort by Price (Ascending)\n");
+        printf("5. Sort by Price (Descending)\n");
+        printf("6. Sort by Name (A-Z)\n");
+        printf("0. Back\n");
+        printf("--------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &search_choice) == 0 ||
+            search_choice == 0) {
+          break;
+        }
+
+        switch (search_choice) {
+        case 1: {
+          char query[MAX_NAME_LEN] = {0};
+          get_safe_string("Enter search query (0 to cancel): ", query,
+                          MAX_NAME_LEN);
+          if (strcmp(query, "0") == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          search_product_by_name(products, product_count, query);
+          break;
+        }
+        case 2: {
+          char category[MAX_CAT_LEN] = {0};
+          get_safe_string("Enter category (0 to cancel): ", category,
+                          MAX_CAT_LEN);
+          if (strcmp(category, "0") == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          filter_product_by_category(products, product_count, category);
+          break;
+        }
+        case 3: {
+          float min_price = 0.0F;
+          float max_price = 0.0F;
+          if (get_safe_float("Enter min price (0 to cancel): ", &min_price) ==
+              0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          if (get_safe_float("Enter max price (0 to cancel): ", &max_price) ==
+              0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          filter_product_by_price(products, product_count, min_price,
+                                  max_price);
+          break;
+        }
+        case 4: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Ascending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 1);
+          break;
+        }
+        case 5: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Descending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 0);
+          break;
+        }
+        case 6: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Name (Alphabetical) ---\n");
+          bubble_sort_by_name(temp_list, product_count);
+          break;
+        }
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
+    }
     case 3:
       printf("Order placement function is not implemented yet.\n");
       break;
@@ -283,9 +366,44 @@ void display_admin_menu(void) {
     case 2:
       printf("Bundle management is not implemented yet.\n");
       break;
-    case 3:
-      printf("Revenue and reports are not implemented yet.\n");
+    case 3: {
+      int report_choice = -1;
+      while (1) {
+        printf("\n--- Revenue & Reports Sub-Menu ---\n");
+        printf("1. View Revenue Report\n");
+        printf("2. View Best-Selling Product\n");
+        printf("3. View Best-Selling Bundle\n");
+        printf("4. View Low-Stock Warning Alerts\n");
+        printf("0. Back\n");
+        printf("----------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &report_choice) == 0 ||
+            report_choice == 0) {
+          break;
+        }
+
+        switch (report_choice) {
+        case 1:
+          print_revenue_report(orders, order_count, products, product_count,
+                               bundles, bundle_count);
+          break;
+        case 2:
+          print_best_seller_products(orders, order_count, products,
+                                     product_count, bundles, bundle_count);
+          break;
+        case 3:
+          print_best_seller_bundles(orders, order_count, bundles, bundle_count);
+          break;
+        case 4:
+          alert_low_stock(products, product_count);
+          break;
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
+    }
     case 4:
       if (save_database(products, product_count, bundles, bundle_count, orders,
                         order_count, &admin) != 0) {
