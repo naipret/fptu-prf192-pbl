@@ -7,13 +7,11 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-// Core limits
 #define MAX_PRODUCTS 100
 #define MAX_BUNDLES 50
 #define MAX_ORDERS 200
 #define MAX_BUNDLE_ITEMS 10
 
-// String lengths
 #define MAX_NAME_LEN 100
 #define MAX_CAT_LEN 50
 #define MAX_BRAND_LEN 50
@@ -21,14 +19,12 @@
 #define MAX_PASSWORD_LEN 50
 #define MAX_DATE_LEN 20
 
-// Admin credential structure
 typedef struct {
   char username[MAX_USERNAME_LEN];
   char password[MAX_PASSWORD_LEN];
   int is_setup;
 } AdminCredentials;
 
-// Product inventory structure
 typedef struct {
   int product_id;
   char product_name[MAX_NAME_LEN];
@@ -38,7 +34,6 @@ typedef struct {
   int stock_quantity;
 } Product;
 
-// Bundle composition structure
 typedef struct {
   int bundle_id;
   char bundle_name[MAX_NAME_LEN];
@@ -48,12 +43,11 @@ typedef struct {
   float bundle_price;
 } Bundle;
 
-// Order entry structure
 typedef struct {
   int order_id;
   char customer_name[MAX_NAME_LEN];
   int item_id;
-  int is_bundle; // 0 = product, 1 = bundle
+  int is_bundle;
   int quantity;
   float total_price;
   char order_date[MAX_DATE_LEN];
@@ -63,7 +57,6 @@ typedef struct {
 
 #ifndef ADMIN_H
 #define ADMIN_H
-
 
 /**
  * @brief Checks if the admin credentials configuration file exists.
@@ -99,11 +92,10 @@ void run_admin_registration_wizard(void);
  */
 int run_admin_login_loop(void);
 
-#endif /* ADMIN_H */
+#endif
 
 #ifndef PRODUCT_H
 #define PRODUCT_H
-
 
 /**
  * @brief Adds a new product to the inventory array after validation.
@@ -188,11 +180,26 @@ void filter_product_by_category(const Product products[], int count,
 void filter_product_by_price(const Product products[], int count,
                              float min_price, float max_price);
 
-#endif /* PRODUCT_H */
+/**
+ * @brief Sorts products by price using Bubble Sort and displays the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ * @param ascending 1 for ascending order, 0 for descending order.
+ */
+void bubble_sort_by_price(Product products[], int count, int ascending);
+
+/**
+ * @brief Sorts products alphabetically by name using Bubble Sort and displays
+ * the result.
+ * @param products Array of product structures.
+ * @param count Current number of active products.
+ */
+void bubble_sort_by_name(Product products[], int count);
+
+#endif
 
 #ifndef BUNDLE_H
 #define BUNDLE_H
-
 
 /**
  * @brief Creates a new bundle and appends it to the bundles array if valid.
@@ -261,11 +268,19 @@ int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
 void display_all_bundles(const Bundle bundles[], int count,
                          const Product products[], int product_count);
 
-#endif /* BUNDLE_H */
+/**
+ * @brief Searches for a bundle in the inventory array by its unique ID.
+ * @param bundles Array of bundle structures.
+ * @param count Current number of active bundles.
+ * @param id The ID of the bundle to search for.
+ * @return The array index of the matching bundle, or -1 if not found.
+ */
+int find_bundle_by_id(const Bundle bundles[], int count, int id);
+
+#endif
 
 #ifndef ORDER_H
 #define ORDER_H
-
 
 /**
  * @brief Validates and places a new order.
@@ -312,11 +327,18 @@ void print_revenue_report(const Order orders[], int order_count,
                           const Product products[], int product_count,
                           const Bundle bundles[], int bundle_count);
 
-#endif /* ORDER_H */
+void print_best_seller_products(const Order orders[], int order_count,
+                                const Product products[], int product_count,
+                                const Bundle bundles[], int bundle_count);
+
+void print_best_seller_bundles(const Order orders[], int order_count,
+                               const Bundle bundles[], int bundle_count);
+
+void alert_low_stock(const Product products[], int product_count);
+#endif
 
 #ifndef FILE_IO_H
 #define FILE_IO_H
-
 
 /**
  * @brief Saves the database containing products, bundles, orders, and admin
@@ -347,11 +369,11 @@ int save_database(const Product products[], int product_count,
  * @param admin Pointer to the admin credentials structure to populate.
  * @return 1 on success, 0 on failure.
  */
-int load_database(Product products[], const int *product_count,
-                  Bundle bundles[], const int *bundle_count, Order orders[],
-                  const int *order_count, AdminCredentials *admin);
+int load_database(Product products[], int *product_count, Bundle bundles[],
+                  int *bundle_count, Order orders[], int *order_count,
+                  AdminCredentials *admin);
 
-#endif /* FILE_IO_H */
+#endif
 
 #ifndef UTILS_H
 #define UTILS_H
@@ -411,7 +433,7 @@ void cont(void);
  */
 int confirm_action(const char *message);
 
-#endif /* UTILS_H */
+#endif
 
 #ifndef MENU_H
 #define MENU_H
@@ -432,9 +454,7 @@ void display_admin_menu(void);
  */
 void run_menu_system(void);
 
-#endif /* MENU_H */
-
-
+#endif
 
 static int validate_credential_string(const char *str, int max_len) {
   int len = (int)strlen(str);
@@ -512,7 +532,6 @@ int verify_admin_login(const char *username, const char *password) {
     return 0;
   }
 
-  /* Obfuscate the input password to compare directly */
   char input_hex[(MAX_PASSWORD_LEN * 2) + 1] = {0};
   int input_len = (int)strlen(password);
   if (input_len >= MAX_PASSWORD_LEN) {
@@ -521,7 +540,7 @@ int verify_admin_login(const char *username, const char *password) {
   for (int i = 0; i < input_len; i++) {
     unsigned char c = (unsigned char)password[i];
     unsigned char obfuscated = (unsigned char)(c ^ 0x5A);
-    sprintf(input_hex + (i * 2), "%02X", obfuscated);
+    sprintf(input_hex + (size_t)(i * 2), "%02X", obfuscated);
   }
 
   if (strcmp(stored_hex, input_hex) == 0) {
@@ -598,8 +617,6 @@ int run_admin_login_loop(void) {
   return 0;
 }
 
-
-
 int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
   if (bundles == NULL || count == NULL || new_bundle == NULL) {
     return 0;
@@ -625,7 +642,6 @@ int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
     cont();
     return 0;
   }
-  // Verify unique product IDs in the new bundle
   for (int i = 0; i < new_bundle->product_count; i++) {
     for (int j = i + 1; j < new_bundle->product_count; j++) {
       if (new_bundle->product_ids[i] == new_bundle->product_ids[j]) {
@@ -704,7 +720,6 @@ int remove_product_from_bundle(Bundle bundles[], int *bundle_count,
     }
     return 0;
   }
-  // Standard removal and shift
   for (int i = index; i < cnt - 1; i++) {
     bundle->product_ids[i] = bundle->product_ids[i + 1];
   }
@@ -740,7 +755,6 @@ int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
     int prod_id = bundle->product_ids[i];
     int prod_idx = find_product_by_id(products, product_count, prod_id);
     if (prod_idx == -1) {
-      // If a product inside the bundle doesn't exist, we consider stock to be 0
       return 0;
     }
     int stock = products[prod_idx].stock_quantity;
@@ -761,7 +775,6 @@ void display_all_bundles(const Bundle bundles[], int count,
     cont();
     return;
   }
-  // +----+---------------------------+-------------+---------------+---------------+
   char border[] = "+----+---------------------------+-------------+------------"
                   "---+---------------+";
 
@@ -787,36 +800,515 @@ void display_all_bundles(const Bundle bundles[], int count,
   cont();
 }
 
+int find_bundle_by_id(const Bundle bundles[], int count, int id) {
+  if (bundles == NULL || count < 0 || id <= 0) {
+    return -1;
+  }
+  for (int i = 0; i < count; i++) {
+    if (bundles[i].bundle_id == id) {
+      return i;
+    }
+  }
+  return -1;
+}
 
+static void strip_newline(char *str) {
+  size_t len = strlen(str);
+  while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
+    str[len - 1] = '\0';
+    len--;
+  }
+}
+
+static int read_line_file(FILE *f, char *dest, size_t max_len) {
+  if (fgets(dest, (int)max_len, f) == NULL) {
+    return 0;
+  }
+  strip_newline(dest);
+  return 1;
+}
+
+static int read_int_file(FILE *f, int *out) {
+  char buf[128];
+  if (!read_line_file(f, buf, sizeof(buf))) {
+    return 0;
+  }
+  char *endptr;
+  long val = strtol(buf, &endptr, 10);
+  if (endptr == buf || *endptr != '\0') {
+    return 0;
+  }
+  *out = (int)val;
+  return 1;
+}
+
+static int read_float_file(FILE *f, float *out) {
+  char buf[128];
+  if (!read_line_file(f, buf, sizeof(buf))) {
+    return 0;
+  }
+  char *endptr;
+  double val = strtod(buf, &endptr);
+  if (endptr == buf || *endptr != '\0') {
+    return 0;
+  }
+  *out = (float)val;
+  return 1;
+}
+
+static int is_file_non_empty(const char *path) {
+  FILE *f = fopen(path, "r");
+  if (f == NULL) {
+    return 0;
+  }
+  if (fseek(f, 0, SEEK_END) != 0) {
+    fclose(f);
+    return 0;
+  }
+  long size = ftell(f);
+  fclose(f);
+  return size > 0 ? 1 : 0;
+}
+
+static int commit_transaction(const char *active_path, const char *tmp_path,
+                              const char *bak_path) {
+  int active_existed = 0;
+  FILE *f = fopen(active_path, "r");
+  if (f != NULL) {
+    active_existed = 1;
+    fclose(f);
+    remove(bak_path);
+    if (rename(active_path, bak_path) != 0) {
+      return 0;
+    }
+  }
+  remove(active_path);
+  if (rename(tmp_path, active_path) != 0) {
+    if (active_existed != 0) {
+      (void)rename(bak_path, active_path);
+    }
+    return 0;
+  }
+  return 1;
+}
+
+static int ensure_active_file(const char *active_path, const char *bak_path) {
+  FILE *f = fopen(active_path, "r");
+  if (f != NULL) {
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fclose(f);
+    if (size > 0) {
+      return 1;
+    }
+  }
+
+  FILE *fbak = fopen(bak_path, "r");
+  if (fbak != NULL) {
+    fclose(fbak);
+    printf("Warning: Active database file '%s' was missing or corrupt. "
+           "Restoring from backup '%s'.\n",
+           active_path, bak_path);
+    remove(active_path);
+
+    FILE *src = fopen(bak_path, "r");
+    if (src == NULL) {
+      return 0;
+    }
+    FILE *dst = fopen(active_path, "w");
+    if (dst == NULL) {
+      fclose(src);
+      return 0;
+    }
+    int ch;
+    while ((ch = fgetc(src)) != EOF) {
+      if (fputc(ch, dst) == EOF) {
+        fclose(src);
+        fclose(dst);
+        return 0;
+      }
+    }
+    fclose(src);
+    fclose(dst);
+    return 1;
+  }
+  return 0;
+}
+
+static int load_products_internal(Product products[], int *product_count,
+                                  const char *filename) {
+  FILE *f = fopen(filename, "r");
+  if (f == NULL) {
+    *product_count = 0;
+    return 1;
+  }
+  int count = 0;
+  if (!read_int_file(f, &count)) {
+    fclose(f);
+    return 0;
+  }
+  if (count < 0 || count > MAX_PRODUCTS) {
+    fclose(f);
+    return 0;
+  }
+  for (int i = 0; i < count; i++) {
+    Product p;
+    memset(&p, 0, sizeof(Product));
+    if (!read_int_file(f, &p.product_id) ||
+        !read_line_file(f, p.product_name, sizeof(p.product_name)) ||
+        !read_line_file(f, p.category, sizeof(p.category)) ||
+        !read_line_file(f, p.brand, sizeof(p.brand)) ||
+        !read_float_file(f, &p.price) || !read_int_file(f, &p.stock_quantity)) {
+      fclose(f);
+      return 0;
+    }
+    products[i] = p;
+  }
+  *product_count = count;
+  fclose(f);
+  return 1;
+}
+
+static int load_bundles_internal(Bundle bundles[], int *bundle_count,
+                                 const char *filename) {
+  FILE *f = fopen(filename, "r");
+  if (f == NULL) {
+    *bundle_count = 0;
+    return 1;
+  }
+  int count = 0;
+  if (!read_int_file(f, &count)) {
+    fclose(f);
+    return 0;
+  }
+  if (count < 0 || count > MAX_BUNDLES) {
+    fclose(f);
+    return 0;
+  }
+  for (int i = 0; i < count; i++) {
+    Bundle b;
+    memset(&b, 0, sizeof(Bundle));
+    if (!read_int_file(f, &b.bundle_id) ||
+        !read_line_file(f, b.bundle_name, sizeof(b.bundle_name)) ||
+        !read_float_file(f, &b.discount_rate) ||
+        !read_float_file(f, &b.bundle_price) ||
+        !read_int_file(f, &b.product_count)) {
+      fclose(f);
+      return 0;
+    }
+    if (b.product_count < 0 || b.product_count > MAX_BUNDLE_ITEMS) {
+      fclose(f);
+      return 0;
+    }
+    for (int j = 0; j < b.product_count; j++) {
+      if (!read_int_file(f, &b.product_ids[j])) {
+        fclose(f);
+        return 0;
+      }
+    }
+    bundles[i] = b;
+  }
+  *bundle_count = count;
+  fclose(f);
+  return 1;
+}
+
+static int load_orders_internal(Order orders[], int *order_count,
+                                const char *filename) {
+  FILE *f = fopen(filename, "r");
+  if (f == NULL) {
+    *order_count = 0;
+    return 1;
+  }
+  int count = 0;
+  if (!read_int_file(f, &count)) {
+    fclose(f);
+    return 0;
+  }
+  if (count < 0 || count > MAX_ORDERS) {
+    fclose(f);
+    return 0;
+  }
+  for (int i = 0; i < count; i++) {
+    Order o;
+    memset(&o, 0, sizeof(Order));
+    if (!read_int_file(f, &o.order_id) ||
+        !read_line_file(f, o.customer_name, sizeof(o.customer_name)) ||
+        !read_int_file(f, &o.item_id) || !read_int_file(f, &o.is_bundle) ||
+        !read_int_file(f, &o.quantity) || !read_float_file(f, &o.total_price) ||
+        !read_line_file(f, o.order_date, sizeof(o.order_date))) {
+      fclose(f);
+      return 0;
+    }
+    orders[i] = o;
+  }
+  *order_count = count;
+  fclose(f);
+  return 1;
+}
+
+static int load_admin_internal(AdminCredentials *admin, const char *filename) {
+  FILE *f = fopen(filename, "r");
+  if (f == NULL) {
+    admin->is_setup = 0;
+    memset(admin->username, 0, sizeof(admin->username));
+    memset(admin->password, 0, sizeof(admin->password));
+    return 1;
+  }
+  AdminCredentials a;
+  memset(&a, 0, sizeof(AdminCredentials));
+  if (!read_line_file(f, a.username, sizeof(a.username)) ||
+      !read_line_file(f, a.password, sizeof(a.password))) {
+    fclose(f);
+    return 0;
+  }
+  a.is_setup = 1;
+  *admin = a;
+  fclose(f);
+  return 1;
+}
 
 int save_database(const Product products[], int product_count,
                   const Bundle bundles[], int bundle_count,
                   const Order orders[], int order_count,
                   const AdminCredentials *admin) {
-  (void)products;
-  (void)product_count;
-  (void)bundles;
-  (void)bundle_count;
-  (void)orders;
-  (void)order_count;
-  (void)admin;
-  return 0;
+  if (products == NULL || product_count < 0 || product_count > MAX_PRODUCTS) {
+    return 0;
+  }
+  if (bundles == NULL || bundle_count < 0 || bundle_count > MAX_BUNDLES) {
+    return 0;
+  }
+  if (orders == NULL || order_count < 0 || order_count > MAX_ORDERS) {
+    return 0;
+  }
+  if (admin == NULL) {
+    return 0;
+  }
+
+  FILE *fp = fopen("products.tmp", "w");
+  if (fp == NULL) {
+    return 0;
+  }
+  fprintf(fp, "%d\n", product_count);
+  for (int i = 0; i < product_count; i++) {
+    fprintf(fp, "%d\n", products[i].product_id);
+    fprintf(fp, "%s\n", products[i].product_name);
+    fprintf(fp, "%s\n", products[i].category);
+    fprintf(fp, "%s\n", products[i].brand);
+    fprintf(fp, "%.2f\n", (double)products[i].price);
+    fprintf(fp, "%d\n", products[i].stock_quantity);
+  }
+  fclose(fp);
+  if (!is_file_non_empty("products.tmp")) {
+    remove("products.tmp");
+    return 0;
+  }
+
+  FILE *fb = fopen("bundles.tmp", "w");
+  if (fb == NULL) {
+    remove("products.tmp");
+    return 0;
+  }
+  fprintf(fb, "%d\n", bundle_count);
+  for (int i = 0; i < bundle_count; i++) {
+    fprintf(fb, "%d\n", bundles[i].bundle_id);
+    fprintf(fb, "%s\n", bundles[i].bundle_name);
+    fprintf(fb, "%.4f\n", (double)bundles[i].discount_rate);
+    fprintf(fb, "%.2f\n", (double)bundles[i].bundle_price);
+    fprintf(fb, "%d\n", bundles[i].product_count);
+    for (int j = 0; j < bundles[i].product_count; j++) {
+      fprintf(fb, "%d\n", bundles[i].product_ids[j]);
+    }
+  }
+  fclose(fb);
+  if (!is_file_non_empty("bundles.tmp")) {
+    remove("products.tmp");
+    remove("bundles.tmp");
+    return 0;
+  }
+
+  FILE *fo = fopen("orders.tmp", "w");
+  if (fo == NULL) {
+    remove("products.tmp");
+    remove("bundles.tmp");
+    return 0;
+  }
+  fprintf(fo, "%d\n", order_count);
+  for (int i = 0; i < order_count; i++) {
+    fprintf(fo, "%d\n", orders[i].order_id);
+    fprintf(fo, "%s\n", orders[i].customer_name);
+    fprintf(fo, "%d\n", orders[i].item_id);
+    fprintf(fo, "%d\n", orders[i].is_bundle);
+    fprintf(fo, "%d\n", orders[i].quantity);
+    fprintf(fo, "%.2f\n", (double)orders[i].total_price);
+    fprintf(fo, "%s\n", orders[i].order_date);
+  }
+  fclose(fo);
+  if (!is_file_non_empty("orders.tmp")) {
+    remove("products.tmp");
+    remove("bundles.tmp");
+    remove("orders.tmp");
+    return 0;
+  }
+
+  FILE *fa = fopen("admin.tmp", "w");
+  if (fa == NULL) {
+    remove("products.tmp");
+    remove("bundles.tmp");
+    remove("orders.tmp");
+    return 0;
+  }
+  if (admin->username[0] == '\0') {
+    FILE *f_exist = fopen("admin.txt", "r");
+    if (f_exist != NULL) {
+      char temp_user[MAX_USERNAME_LEN] = {0};
+      char temp_pass[(MAX_PASSWORD_LEN * 2) + 2] = {0};
+      if (fgets(temp_user, (int)sizeof(temp_user), f_exist) != NULL &&
+          fgets(temp_pass, (int)sizeof(temp_pass), f_exist) != NULL) {
+        fprintf(fa, "%s", temp_user);
+        fprintf(fa, "%s", temp_pass);
+      } else {
+        fprintf(fa, "\n\n");
+      }
+      fclose(f_exist);
+    } else {
+      fprintf(fa, "\n\n");
+    }
+  } else {
+    fprintf(fa, "%s\n", admin->username);
+    fprintf(fa, "%s\n", admin->password);
+  }
+  fclose(fa);
+  if (!is_file_non_empty("admin.tmp")) {
+    remove("products.tmp");
+    remove("bundles.tmp");
+    remove("orders.tmp");
+    remove("admin.tmp");
+    return 0;
+  }
+
+  int success = 1;
+  if (!commit_transaction("products.txt", "products.tmp", "products.bak")) {
+    success = 0;
+  }
+  if (!commit_transaction("bundles.txt", "bundles.tmp", "bundles.bak")) {
+    success = 0;
+  }
+  if (!commit_transaction("orders.txt", "orders.tmp", "orders.bak")) {
+    success = 0;
+  }
+  if (!commit_transaction("admin.txt", "admin.tmp", "admin.bak")) {
+    success = 0;
+  }
+
+  return success;
 }
 
-int load_database(Product products[], const int *product_count,
-                  Bundle bundles[], const int *bundle_count, Order orders[],
-                  const int *order_count, AdminCredentials *admin) {
-  (void)products;
-  (void)product_count;
-  (void)bundles;
-  (void)bundle_count;
-  (void)orders;
-  (void)order_count;
-  (void)admin;
-  return 0;
+int load_database(Product products[], int *product_count, Bundle bundles[],
+                  int *bundle_count, Order orders[], int *order_count,
+                  AdminCredentials *admin) {
+  if (products == NULL || product_count == NULL || bundles == NULL ||
+      bundle_count == NULL || orders == NULL || order_count == NULL ||
+      admin == NULL) {
+    return 0;
+  }
+
+  int overall_success = 1;
+
+  (void)ensure_active_file("products.txt", "products.bak");
+  if (!load_products_internal(products, product_count, "products.txt")) {
+    printf(
+        "Warning: 'products.txt' load failed or corrupt. Restoring backup.\n");
+    remove("products.txt");
+    FILE *src = fopen("products.bak", "r");
+    if (src != NULL) {
+      FILE *dst = fopen("products.txt", "w");
+      if (dst != NULL) {
+        int ch;
+        while ((ch = fgetc(src)) != EOF) {
+          (void)fputc(ch, dst);
+        }
+        fclose(dst);
+      }
+      fclose(src);
+    }
+    if (!load_products_internal(products, product_count, "products.txt")) {
+      *product_count = 0;
+      overall_success = 0;
+    }
+  }
+
+  (void)ensure_active_file("bundles.txt", "bundles.bak");
+  if (!load_bundles_internal(bundles, bundle_count, "bundles.txt")) {
+    printf(
+        "Warning: 'bundles.txt' load failed or corrupt. Restoring backup.\n");
+    remove("bundles.txt");
+    FILE *src = fopen("bundles.bak", "r");
+    if (src != NULL) {
+      FILE *dst = fopen("bundles.txt", "w");
+      if (dst != NULL) {
+        int ch;
+        while ((ch = fgetc(src)) != EOF) {
+          (void)fputc(ch, dst);
+        }
+        fclose(dst);
+      }
+      fclose(src);
+    }
+    if (!load_bundles_internal(bundles, bundle_count, "bundles.txt")) {
+      *bundle_count = 0;
+      overall_success = 0;
+    }
+  }
+
+  (void)ensure_active_file("orders.txt", "orders.bak");
+  if (!load_orders_internal(orders, order_count, "orders.txt")) {
+    printf("Warning: 'orders.txt' load failed or corrupt. Restoring backup.\n");
+    remove("orders.txt");
+    FILE *src = fopen("orders.bak", "r");
+    if (src != NULL) {
+      FILE *dst = fopen("orders.txt", "w");
+      if (dst != NULL) {
+        int ch;
+        while ((ch = fgetc(src)) != EOF) {
+          (void)fputc(ch, dst);
+        }
+        fclose(dst);
+      }
+      fclose(src);
+    }
+    if (!load_orders_internal(orders, order_count, "orders.txt")) {
+      *order_count = 0;
+      overall_success = 0;
+    }
+  }
+
+  (void)ensure_active_file("admin.txt", "admin.bak");
+  if (!load_admin_internal(admin, "admin.txt")) {
+    printf("Warning: 'admin.txt' load failed or corrupt. Restoring backup.\n");
+    remove("admin.txt");
+    FILE *src = fopen("admin.bak", "r");
+    if (src != NULL) {
+      FILE *dst = fopen("admin.txt", "w");
+      if (dst != NULL) {
+        int ch;
+        while ((ch = fgetc(src)) != EOF) {
+          (void)fputc(ch, dst);
+        }
+        fclose(dst);
+      }
+      fclose(src);
+    }
+    if (!load_admin_internal(admin, "admin.txt")) {
+      admin->is_setup = 0;
+      memset(admin->username, 0, sizeof(admin->username));
+      memset(admin->password, 0, sizeof(admin->password));
+      overall_success = 0;
+    }
+  }
+
+  return overall_success;
 }
-
-
 
 static Product products[MAX_PRODUCTS];
 static int product_count = 0;
@@ -853,6 +1345,8 @@ void display_customer_menu(void) {
     case 1:
       printf("\n--- Product Catalog ---\n");
       display_all_products(products, product_count);
+      printf("\n--- Bundle Catalog ---\n");
+      display_all_bundles(bundles, bundle_count, products, product_count);
       break;
     case 2: {
       int search_choice = -1;
@@ -861,6 +1355,9 @@ void display_customer_menu(void) {
         printf("1. Search by Name\n");
         printf("2. Filter by Category\n");
         printf("3. Filter by Price Range\n");
+        printf("4. Sort by Price (Ascending)\n");
+        printf("5. Sort by Price (Descending)\n");
+        printf("6. Sort by Name (A-Z)\n");
         printf("0. Back\n");
         printf("--------------------------------\n");
 
@@ -909,6 +1406,27 @@ void display_customer_menu(void) {
                                   max_price);
           break;
         }
+        case 4: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Ascending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 1);
+          break;
+        }
+        case 5: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Price (Descending) ---\n");
+          bubble_sort_by_price(temp_list, product_count, 0);
+          break;
+        }
+        case 6: {
+          Product temp_list[MAX_PRODUCTS];
+          memcpy(temp_list, products, (size_t)product_count * sizeof(Product));
+          printf("\n--- Products Sorted by Name (Alphabetical) ---\n");
+          bubble_sort_by_name(temp_list, product_count);
+          break;
+        }
         default:
           printf("Invalid option. Please try again.\n");
           break;
@@ -916,9 +1434,62 @@ void display_customer_menu(void) {
       }
       break;
     }
-    case 3:
-      printf("Order placement function is not implemented yet.\n");
+    case 3: {
+      printf("\n--- Place Order ---\n");
+      Order new_ord;
+      memset(&new_ord, 0, sizeof(new_ord));
+
+      get_safe_string("Enter Customer Name (0 to cancel): ",
+                      new_ord.customer_name, MAX_NAME_LEN);
+      if (strcmp(new_ord.customer_name, "0") == 0) {
+        printf("Action cancelled.\n");
+        break;
+      }
+
+      int is_bundle_choice = -1;
+      int cancelled = 0;
+      while (1) {
+        if (get_safe_int("Is this a Bundle order? (1 for Bundle, 2 for "
+                         "Product, 0 to cancel): ",
+                         &is_bundle_choice) == 0 ||
+            is_bundle_choice == 0) {
+          printf("Action cancelled.\n");
+          cancelled = 1;
+          break;
+        }
+        if (is_bundle_choice == 1 || is_bundle_choice == 2) {
+          new_ord.is_bundle = (is_bundle_choice == 1) ? 1 : 0;
+          break;
+        }
+        printf("Invalid entry, please try again.\n");
+      }
+      if (cancelled != 0) {
+        break;
+      }
+
+      if (get_safe_int("Enter Item ID to order (0 to cancel): ",
+                       &new_ord.item_id) == 0 ||
+          new_ord.item_id == 0) {
+        printf("Action cancelled.\n");
+        break;
+      }
+
+      if (get_safe_int("Enter Quantity (0 to cancel): ", &new_ord.quantity) ==
+              0 ||
+          new_ord.quantity == 0) {
+        printf("Action cancelled.\n");
+        break;
+      }
+
+      if (create_order(orders, &order_count, products, product_count, bundles,
+                       bundle_count, &new_ord) != 0) {
+        printf("Order placed successfully!\n");
+      } else {
+        printf("Failed to place order due to validation errors.\n");
+      }
+      cont();
       break;
+    }
     case 4: {
       printf("\n--- Admin Login ---\n");
       char username[MAX_USERNAME_LEN] = {0};
@@ -1148,12 +1719,240 @@ void display_admin_menu(void) {
       }
       break;
     }
-    case 2:
-      printf("Bundle management is not implemented yet.\n");
+    case 2: {
+      int bundle_choice = -1;
+      while (1) {
+        printf("\n--- Bundle Management Sub-Menu ---\n");
+        printf("1. View All Bundles\n");
+        printf("2. Create Bundle\n");
+        printf("3. Add Product to Bundle\n");
+        printf("4. Remove Product from Bundle\n");
+        printf("0. Back\n");
+        printf("----------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &bundle_choice) == 0 ||
+            bundle_choice == 0) {
+          break;
+        }
+
+        switch (bundle_choice) {
+        case 1:
+          display_all_bundles(bundles, bundle_count, products, product_count);
+          break;
+        case 2: {
+          printf("\n--- Create Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          if (find_bundle_by_id(bundles, bundle_count, b_id) != -1) {
+            printf("Error: Bundle ID %d already exists.\n", b_id);
+            cont();
+            break;
+          }
+
+          char b_name[MAX_NAME_LEN] = {0};
+          get_safe_string("Enter Bundle Name (0 to cancel): ", b_name,
+                          MAX_NAME_LEN);
+          if (strcmp(b_name, "0") == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          float discount_rate = 0.0F;
+          if (get_safe_float("Enter Discount Rate (0.0 to 1.0, 0 to cancel): ",
+                             &discount_rate) == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int product_ids[MAX_BUNDLE_ITEMS];
+          int p_count = 0;
+          while (p_count < MAX_BUNDLE_ITEMS) {
+            int prod_id = 0;
+            printf("Adding product %d/%d to the bundle.\n", p_count + 1,
+                   MAX_BUNDLE_ITEMS);
+            if (get_safe_int("Enter Product ID (0 to finish/cancel if empty): ",
+                             &prod_id) == 0 ||
+                prod_id == 0) {
+              break;
+            }
+
+            int p_idx = find_product_by_id(products, product_count, prod_id);
+            if (p_idx == -1) {
+              printf("Error: Product ID %d not found in inventory.\n", prod_id);
+              continue;
+            }
+
+            int already_added = 0;
+            for (int k = 0; k < p_count; k++) {
+              if (product_ids[k] == prod_id) {
+                already_added = 1;
+                break;
+              }
+            }
+            if (already_added != 0) {
+              printf("Error: Product already added to this bundle.\n");
+              continue;
+            }
+
+            product_ids[p_count] = prod_id;
+            p_count++;
+          }
+
+          if (p_count < 1) {
+            printf("Error: A bundle must contain at least 1 product.\n");
+            cont();
+            break;
+          }
+
+          Bundle new_b;
+          memset(&new_b, 0, sizeof(new_b));
+          new_b.bundle_id = b_id;
+          strncpy(new_b.bundle_name, b_name, MAX_NAME_LEN - 1);
+          new_b.discount_rate = discount_rate;
+          new_b.product_count = p_count;
+          for (int k = 0; k < p_count; k++) {
+            new_b.product_ids[k] = product_ids[k];
+          }
+          new_b.bundle_price =
+              calculate_bundle_price(&new_b, products, product_count);
+
+          if (create_bundle(bundles, &bundle_count, &new_b) != 0) {
+            printf("Bundle created successfully!\n");
+          } else {
+            printf("Failed to create bundle.\n");
+          }
+          break;
+        }
+        case 3: {
+          printf("\n--- Add Product to Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          int b_idx = find_bundle_by_id(bundles, bundle_count, b_id);
+          if (b_idx == -1) {
+            printf("Error: Bundle ID %d not found.\n", b_id);
+            cont();
+            break;
+          }
+
+          if (bundles[b_idx].product_count >= MAX_BUNDLE_ITEMS) {
+            printf("Error: Bundle is full.\n");
+            cont();
+            break;
+          }
+
+          int prod_id = 0;
+          if (get_safe_int("Enter Product ID to add (0 to cancel): ",
+                           &prod_id) == 0 ||
+              prod_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int p_idx = find_product_by_id(products, product_count, prod_id);
+          if (p_idx == -1) {
+            printf("Error: Product ID %d not found in inventory.\n", prod_id);
+            cont();
+            break;
+          }
+
+          if (add_product_to_bundle(&bundles[b_idx], prod_id) != 0) {
+            bundles[b_idx].bundle_price = calculate_bundle_price(
+                &bundles[b_idx], products, product_count);
+            printf("Product added to bundle successfully!\n");
+          } else {
+            printf("Failed to add product to bundle.\n");
+          }
+          break;
+        }
+        case 4: {
+          printf("\n--- Remove Product from Bundle ---\n");
+          int b_id = 0;
+          if (get_safe_int("Enter Bundle ID (0 to cancel): ", &b_id) == 0 ||
+              b_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+          int b_idx = find_bundle_by_id(bundles, bundle_count, b_id);
+          if (b_idx == -1) {
+            printf("Error: Bundle ID %d not found.\n", b_id);
+            cont();
+            break;
+          }
+
+          int prod_id = 0;
+          if (get_safe_int("Enter Product ID to remove (0 to cancel): ",
+                           &prod_id) == 0 ||
+              prod_id == 0) {
+            printf("Action cancelled.\n");
+            break;
+          }
+
+          int old_count = bundle_count;
+          if (remove_product_from_bundle(bundles, &bundle_count,
+                                         &bundles[b_idx], prod_id) != 0) {
+            printf("Product removed successfully.\n");
+            if (bundle_count == old_count) {
+              bundles[b_idx].bundle_price = calculate_bundle_price(
+                  &bundles[b_idx], products, product_count);
+            }
+          } else {
+            printf("Failed to remove product.\n");
+          }
+          break;
+        }
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
-    case 3:
-      printf("Revenue and reports are not implemented yet.\n");
+    }
+    case 3: {
+      int report_choice = -1;
+      while (1) {
+        printf("\n--- Revenue & Reports Sub-Menu ---\n");
+        printf("1. View Revenue Report\n");
+        printf("2. View Best-Selling Product\n");
+        printf("3. View Best-Selling Bundle\n");
+        printf("4. View Low-Stock Warning Alerts\n");
+        printf("0. Back\n");
+        printf("----------------------------------\n");
+
+        if (get_safe_int("Enter selection: ", &report_choice) == 0 ||
+            report_choice == 0) {
+          break;
+        }
+
+        switch (report_choice) {
+        case 1:
+          print_revenue_report(orders, order_count, products, product_count,
+                               bundles, bundle_count);
+          break;
+        case 2:
+          print_best_seller_products(orders, order_count, products,
+                                     product_count, bundles, bundle_count);
+          break;
+        case 3:
+          print_best_seller_bundles(orders, order_count, bundles, bundle_count);
+          break;
+        case 4:
+          alert_low_stock(products, product_count);
+          break;
+        default:
+          printf("Invalid option. Please try again.\n");
+          break;
+        }
+      }
       break;
+    }
     case 4:
       if (save_database(products, product_count, bundles, bundle_count, orders,
                         order_count, &admin) != 0) {
@@ -1173,7 +1972,6 @@ void run_menu_system(void) {
   load_database(products, &product_count, bundles, &bundle_count, orders,
                 &order_count, &admin);
 
-  /* Initialize sample products if empty */
   if (product_count == 0) {
     Product p1 = {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10};
     Product p2 = {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5};
@@ -1227,9 +2025,6 @@ void run_menu_system(void) {
   display_customer_menu();
 }
 
-
-
-/* Static helper function prototypes */
 static int process_product_order(Product products[], int product_count,
                                  const Order *new_order, float *item_price);
 static int process_bundle_order(Product products[], int product_count,
@@ -1238,9 +2033,6 @@ static int process_bundle_order(Product products[], int product_count,
 static void finalize_order_metadata(Order *ord, const Order *orders, int count,
                                     const Order *new_order, float item_price);
 
-/**
- * @brief Processes and validates a product-based order.
- */
 static int process_product_order(Product products[], int product_count,
                                  const Order *new_order, float *item_price) {
   int prod_idx =
@@ -1259,9 +2051,6 @@ static int process_product_order(Product products[], int product_count,
   return 1;
 }
 
-/**
- * @brief Processes and validates a bundle-based order.
- */
 static int process_bundle_order(Product products[], int product_count,
                                 const Bundle bundles[], int bundle_count,
                                 const Order *new_order, float *item_price) {
@@ -1308,9 +2097,6 @@ static int process_bundle_order(Product products[], int product_count,
   return 1;
 }
 
-/**
- * @brief Populates metadata for the newly placed order.
- */
 static void finalize_order_metadata(Order *ord, const Order *orders, int count,
                                     const Order *new_order, float item_price) {
   ord->order_id = new_order->order_id;
@@ -1359,13 +2145,11 @@ int create_order(Order orders[], int *count, Product products[],
     return 0;
   }
 
-  // 1. Validate quantity
   if (new_order->quantity <= 0) {
     printf("Error: Order quantity must be greater than 0.\n");
     return 0;
   }
 
-  // 2. Validate customer name
   if (strlen(new_order->customer_name) == 0) {
     printf("Error: Customer name cannot be empty.\n");
     return 0;
@@ -1373,7 +2157,6 @@ int create_order(Order orders[], int *count, Product products[],
 
   float item_price = 0.0F;
 
-  // 3. Process Product/Bundle Order
   if (new_order->is_bundle == 0) {
     if (!process_product_order(products, product_count, new_order,
                                &item_price)) {
@@ -1389,7 +2172,6 @@ int create_order(Order orders[], int *count, Product products[],
     return 0;
   }
 
-  // 4. Finalize Metadata and append
   finalize_order_metadata(&orders[*count], orders, *count, new_order,
                           item_price);
   (*count)++;
@@ -1421,6 +2203,10 @@ void display_order_history(const Order orders[], int count) {
 void print_revenue_report(const Order orders[], int order_count,
                           const Product products[], int product_count,
                           const Bundle bundles[], int bundle_count) {
+  int product_sold = 0;
+  int bundle_sold = 0;
+  float total_revenue = 0.0F;
+
   (void)products;
   (void)product_count;
   (void)bundles;
@@ -1432,22 +2218,164 @@ void print_revenue_report(const Order orders[], int order_count,
     printf("Total Revenue: $0.00\n");
     return;
   }
-  float total_revenue = 0.0F;
+
   for (int i = 0; i < order_count; i++) {
+    if (orders[i].is_bundle == 0) {
+      product_sold += orders[i].quantity;
+    } else {
+      bundle_sold += orders[i].quantity;
+    }
     total_revenue += orders[i].total_price;
   }
+
   printf("\n--- REVENUE REPORT ---\n");
   printf("Total Orders: %d\n", order_count);
   printf("Total Revenue: $%.2f\n", (double)total_revenue);
+  printf("Total count of products sold: %d\n", product_sold);
+  printf("Total count of bundles sold: %d\n", bundle_sold);
 }
 
+void print_best_seller_products(const Order orders[], int order_count,
+                                const Product products[], int product_count,
+                                const Bundle bundles[], int bundle_count) {
+  int product_sales[MAX_PRODUCTS] = {0};
+  int best_seller = 0;
+  int stt = 1;
 
+  if (orders == NULL || order_count <= 0 || products == NULL ||
+      product_count <= 0) {
+    printf("No products or bundles have been sold yet.\n");
+    cont();
+    return;
+  }
 
-/**
- * @brief Helper function to validate product Category.
- * @param category The string to validate.
- * @return 1 if valid, 0 otherwise.
- */
+  for (int i = 0; i < product_count; i++) {
+    int prod_id = products[i].product_id;
+    int total = 0;
+    for (int j = 0; j < order_count; j++) {
+      if (orders[j].is_bundle == 0) {
+        if (orders[j].item_id == prod_id) {
+          total += orders[j].quantity;
+        }
+      } else {
+        int b_idx = find_bundle_by_id(bundles, bundle_count, orders[j].item_id);
+        if (b_idx != -1) {
+          for (int k = 0; k < bundles[b_idx].product_count; k++) {
+            if (bundles[b_idx].product_ids[k] == prod_id) {
+              total += orders[j].quantity;
+              break;
+            }
+          }
+        }
+      }
+    }
+    product_sales[i] = total;
+    if (total > best_seller) {
+      best_seller = total;
+    }
+  }
+
+  if (best_seller == 0) {
+    printf("No products have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Product Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+
+  for (int i = 0; i < product_count; i++) {
+    if (product_sales[i] == best_seller) {
+      printf("| %-3d | %-33s | %-10d |\n", stt, products[i].product_name,
+             best_seller);
+      stt++;
+    }
+  }
+  printf("+-----+-----------------------------------+------------+\n");
+
+  cont();
+}
+
+void print_best_seller_bundles(const Order orders[], int order_count,
+                               const Bundle bundles[], int bundle_count) {
+  int bundle_sales[MAX_BUNDLES] = {0};
+  int best_seller = 0;
+  int stt = 1;
+
+  if (orders == NULL || order_count <= 0 || bundles == NULL ||
+      bundle_count <= 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  for (int i = 0; i < bundle_count; i++) {
+    int b_id = bundles[i].bundle_id;
+    int total = 0;
+    for (int j = 0; j < order_count; j++) {
+      if (orders[j].is_bundle == 1 && orders[j].item_id == b_id) {
+        total += orders[j].quantity;
+      }
+    }
+    bundle_sales[i] = total;
+    if (total > best_seller) {
+      best_seller = total;
+    }
+  }
+
+  if (best_seller == 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Bundle Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+  for (int i = 0; i < bundle_count; i++) {
+    if (bundle_sales[i] == best_seller) {
+      printf("| %-3d | %-33s | %-10d |\n", stt, bundles[i].bundle_name,
+             best_seller);
+      stt++;
+    }
+  }
+  printf("+-----+-----------------------------------+------------+\n");
+
+  cont();
+}
+
+void alert_low_stock(const Product products[], int product_count) {
+  int check = 1;
+  int stt = 1;
+  const char *border = "+------+--------+--------------------------------------"
+                       "--------------+--------------+";
+
+  printf("%s\n", border);
+  printf("| %-4s | %-6s | %-50s | %-12s |\n", "NO", "ID", "NAME",
+         "CURRENT STOCK");
+  printf("%s\n", border);
+
+  for (int i = 0; i < product_count; i++) {
+    if (products[i].stock_quantity < 5) {
+      check = 0;
+
+      printf("| %-4d | %-6d | %-50.50s | %-12d |\n", stt,
+             products[i].product_id, products[i].product_name,
+             products[i].stock_quantity);
+      stt++;
+    }
+  }
+
+  if (!check) {
+    printf("%s\n", border);
+  } else {
+    printf("\nAll products have sufficient stock levels.\n");
+  }
+
+  cont();
+}
+
 static int is_valid_category(const char *category);
 
 static int is_valid_category(const char *category) {
@@ -1471,32 +2399,27 @@ int add_product(Product products[], int *count, const Product *new_prod) {
     printf("Error: Product ID must be a positive integer.\n");
     return 0;
   }
-  // Check unique ID
   for (int i = 0; i < *count; i++) {
     if (products[i].product_id == new_prod->product_id) {
       printf("Error: Product ID %d already exists.\n", new_prod->product_id);
       return 0;
     }
   }
-  // Validate Category
   if (!is_valid_category(new_prod->category)) {
     printf("Error: Invalid category '%s'. Category must strictly be one of: "
            "Phone, Laptop, Tablet, Accessory.\n",
            new_prod->category);
     return 0;
   }
-  // Validate Price
   if (new_prod->price <= 0.0F) {
     printf("Error: Price must be a positive float value (> 0.0).\n");
     return 0;
   }
-  // Validate Stock
   if (new_prod->stock_quantity < 0) {
     printf("Error: Stock quantity must be non-negative (>= 0).\n");
     return 0;
   }
 
-  // Copy values safely
   products[*count].product_id = new_prod->product_id;
 
   strncpy(products[*count].product_name, new_prod->product_name,
@@ -1511,7 +2434,6 @@ int add_product(Product products[], int *count, const Product *new_prod) {
 
   products[*count].price = new_prod->price;
   products[*count].stock_quantity = new_prod->stock_quantity;
-
   (*count)++;
   return 1;
 }
@@ -1526,7 +2448,6 @@ int update_product(Product products[], int count, int id,
     printf("Error: Product ID %d not found.\n", id);
     return 0;
   }
-  // If ID is being changed, verify it is unique
   if (updated->product_id != id) {
     if (updated->product_id <= 0) {
       printf("Error: Product ID must be a positive integer.\n");
@@ -1539,25 +2460,21 @@ int update_product(Product products[], int count, int id,
       }
     }
   }
-  // Validate Category
   if (!is_valid_category(updated->category)) {
     printf("Error: Invalid category '%s'. Category must strictly be one of: "
            "Phone, Laptop, Tablet, Accessory.\n",
            updated->category);
     return 0;
   }
-  // Validate Price
   if (updated->price <= 0.0F) {
     printf("Error: Price must be a positive float value (> 0.0).\n");
     return 0;
   }
-  // Validate Stock
   if (updated->stock_quantity < 0) {
     printf("Error: Stock quantity must be non-negative (>= 0).\n");
     return 0;
   }
 
-  // Apply updates
   products[index].product_id = updated->product_id;
 
   strncpy(products[index].product_name, updated->product_name,
@@ -1588,7 +2505,6 @@ int delete_product(Product products[], int *count, int id,
     return 0;
   }
 
-  // Check if the product is in any active bundle
   int is_blocked = 0;
   for (int i = 0; i < bundle_count; i++) {
     for (int j = 0; j < bundles[i].product_count; j++) {
@@ -1599,7 +2515,7 @@ int delete_product(Product products[], int *count, int id,
         }
         printf("- Bundle ID: %d, Name: %s\n", bundles[i].bundle_id,
                bundles[i].bundle_name);
-        break; /* Check next bundle */
+        break;
       }
     }
   }
@@ -1608,7 +2524,6 @@ int delete_product(Product products[], int *count, int id,
     return 0;
   }
 
-  // Shift elements to the left
   for (int i = index; i < *count - 1; i++) {
     products[i] = products[i + 1];
   }
@@ -1723,6 +2638,14 @@ void filter_product_by_price(const Product products[], int count,
   if (products == NULL || count < 0) {
     return;
   }
+  if (min_price < 0.0F || max_price < 0.0F) {
+    printf("Error: Price boundaries must be non-negative.\n");
+    return;
+  }
+  if (min_price > max_price) {
+    printf("Error: Minimum price cannot be greater than maximum price.\n");
+    return;
+  }
   int found = 0;
   for (int i = 0; i < count; i++) {
     if (products[i].price >= min_price && products[i].price <= max_price) {
@@ -1745,12 +2668,47 @@ void filter_product_by_price(const Product products[], int count,
   }
 }
 
+void bubble_sort_by_price(Product products[], int count, int ascending) {
+  if (products == NULL || count < 0) {
+    return;
+  }
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = 0; j < count - i - 1; j++) {
+      int condition = 0;
+      if (ascending != 0) {
+        condition = (products[j].price > products[j + 1].price);
+      } else {
+        condition = (products[j].price < products[j + 1].price);
+      }
+      if (condition != 0) {
+        Product temp = products[j];
+        products[j] = products[j + 1];
+        products[j + 1] = temp;
+      }
+    }
+  }
+  display_all_products(products, count);
+}
 
+void bubble_sort_by_name(Product products[], int count) {
+  if (products == NULL || count < 0) {
+    return;
+  }
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = 0; j < count - i - 1; j++) {
+      if (strcmp(products[j].product_name, products[j + 1].product_name) > 0) {
+        Product temp = products[j];
+        products[j] = products[j + 1];
+        products[j + 1] = temp;
+      }
+    }
+  }
+  display_all_products(products, count);
+}
 
 void clear_input_buffer(void) {
   int c;
   while ((c = getchar()) != '\n' && c != EOF) {
-    /* discard */
   }
 }
 
@@ -1796,7 +2754,6 @@ int get_safe_int(const char *prompt, int *out_value) {
     }
 
     int i = 0;
-    // Skip leading whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -1824,8 +2781,6 @@ int get_safe_int(const char *prompt, int *out_value) {
     int overflow = 0;
     while (buf[i] >= '0' && buf[i] <= '9') {
       val = (val * 10) + (buf[i] - '0');
-      // Detect overflow of 32-bit signed int (Max: 2147483647, Min:
-      // -2147483648)
       if (sign == 1 && val > 2147483647LL) {
         val = 2147483647LL;
         overflow = 1;
@@ -1836,7 +2791,6 @@ int get_safe_int(const char *prompt, int *out_value) {
       i++;
     }
 
-    // Skip trailing whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -1874,7 +2828,6 @@ int get_safe_float(const char *prompt, float *out_value) {
     }
 
     int i = 0;
-    // Skip leading whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -1927,7 +2880,6 @@ int get_safe_float(const char *prompt, float *out_value) {
       continue;
     }
 
-    // Skip trailing whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -1972,11 +2924,8 @@ int confirm_action(const char *message) {
   return (choice[0] == 'Y' || choice[0] == 'y');
 }
 
-
-
 int main(void) {
   printf("E-Commerce Electronics & Bundle Management System\n");
   run_menu_system();
   return 0;
 }
-
