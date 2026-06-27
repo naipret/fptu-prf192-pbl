@@ -5,6 +5,7 @@
 #include "bundle.h"
 #include "order.h"
 #include "product.h"
+#include "utils.h"
 
 /* Static helper function prototypes */
 static int process_product_order(Product products[], int product_count,
