@@ -8,9 +8,9 @@ static void test_sort_by_price_ascending(void) {
   printf("Running test_sort_by_price_ascending...\n");
 
   Product products[3] = {
-      {1, "Laptop", "Laptop", "BrandA", 1200.0f, 10},
-      {2, "Phone", "Phone", "BrandB", 800.0f, 20},
-      {3, "Tablet", "Tablet", "BrandC", 500.0f, 15}
+      {1, "Laptop", "Laptop", "BrandA", 1200.0F, 10},
+      {2, "Phone", "Phone", "BrandB", 800.0F, 20},
+      {3, "Tablet", "Tablet", "BrandC", 500.0F, 15}
   };
 
   bubble_sort_by_price(products, 3, 1);
@@ -27,9 +27,9 @@ static void test_sort_by_price_descending(void) {
   printf("Running test_sort_by_price_descending...\n");
 
   Product products[3] = {
-      {1, "Laptop", "Laptop", "BrandA", 1200.0f, 10},
-      {2, "Phone", "Phone", "BrandB", 800.0f, 20},
-      {3, "Tablet", "Tablet", "BrandC", 500.0f, 15}
+      {1, "Laptop", "Laptop", "BrandA", 1200.0F, 10},
+      {2, "Phone", "Phone", "BrandB", 800.0F, 20},
+      {3, "Tablet", "Tablet", "BrandC", 500.0F, 15}
   };
 
   bubble_sort_by_price(products, 3, 0);
@@ -46,9 +46,9 @@ static void test_sort_by_name(void) {
   printf("Running test_sort_by_name...\n");
 
   Product products[3] = {
-      {1, "Tablet", "Tablet", "BrandC", 500.0f, 15},
-      {2, "Phone", "Phone", "BrandB", 800.0f, 20},
-      {3, "Laptop", "Laptop", "BrandA", 1200.0f, 10}
+      {1, "Tablet", "Tablet", "BrandC", 500.0F, 15},
+      {2, "Phone", "Phone", "BrandB", 800.0F, 20},
+      {3, "Laptop", "Laptop", "BrandA", 1200.0F, 10}
   };
 
   bubble_sort_by_name(products, 3);
