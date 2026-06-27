@@ -72,7 +72,6 @@ int add_product(Product products[], int *count, const Product *new_prod) {
 
   products[*count].price = new_prod->price;
   products[*count].stock_quantity = new_prod->stock_quantity;
-
   (*count)++;
   return 1;
 }

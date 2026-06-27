@@ -70,4 +70,13 @@ int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
 void display_all_bundles(const Bundle bundles[], int count,
                          const Product products[], int product_count);
 
+/**
+ * @brief Searches for a bundle in the inventory array by its unique ID.
+ * @param bundles Array of bundle structures.
+ * @param count Current number of active bundles.
+ * @param id The ID of the bundle to search for.
+ * @return The array index of the matching bundle, or -1 if not found.
+ */
+int find_bundle_by_id(const Bundle bundles[], int count, int id);
+
 #endif /* BUNDLE_H */

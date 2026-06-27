@@ -5,6 +5,7 @@
 #include "bundle.h"
 #include "order.h"
 #include "product.h"
+#include "utils.h"
 
 /* Static helper function prototypes */
 static int process_product_order(Product products[], int product_count,
@@ -198,6 +199,10 @@ void display_order_history(const Order orders[], int count) {
 void print_revenue_report(const Order orders[], int order_count,
                           const Product products[], int product_count,
                           const Bundle bundles[], int bundle_count) {
+  int product_sold = 0;
+  int bundle_sold = 0;
+  float total_revenue = 0.0F;
+
   (void)products;
   (void)product_count;
   (void)bundles;
@@ -209,11 +214,160 @@ void print_revenue_report(const Order orders[], int order_count,
     printf("Total Revenue: $0.00\n");
     return;
   }
-  float total_revenue = 0.0F;
+
   for (int i = 0; i < order_count; i++) {
+    if (orders[i].is_bundle == 0) {
+      product_sold += orders[i].quantity;
+    } else {
+      bundle_sold += orders[i].quantity;
+    }
     total_revenue += orders[i].total_price;
   }
+
   printf("\n--- REVENUE REPORT ---\n");
   printf("Total Orders: %d\n", order_count);
   printf("Total Revenue: $%.2f\n", (double)total_revenue);
+  printf("Total count of products sold: %d\n", product_sold);
+  printf("Total count of bundles sold: %d\n", bundle_sold);
+}
+
+void print_best_seller_products(const Order orders[], int order_count,
+                                const Product products[], int product_count,
+                                const Bundle bundles[], int bundle_count) {
+  int product_sales[MAX_PRODUCTS] = {0};
+  int best_seller = 0;
+  int stt = 1;
+
+  if (orders == NULL || order_count <= 0 || products == NULL ||
+      product_count <= 0) {
+    printf("No products or bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  for (int i = 0; i < product_count; i++) {
+    int prod_id = products[i].product_id;
+    int total = 0;
+    for (int j = 0; j < order_count; j++) {
+      if (orders[j].is_bundle == 0) {
+        if (orders[j].item_id == prod_id) {
+          total += orders[j].quantity;
+        }
+      } else {
+        int b_idx = find_bundle_by_id(bundles, bundle_count, orders[j].item_id);
+        if (b_idx != -1) {
+          for (int k = 0; k < bundles[b_idx].product_count; k++) {
+            if (bundles[b_idx].product_ids[k] == prod_id) {
+              total += orders[j].quantity;
+              break;
+            }
+          }
+        }
+      }
+    }
+    product_sales[i] = total;
+    if (total > best_seller) {
+      best_seller = total;
+    }
+  }
+
+  if (best_seller == 0) {
+    printf("No products have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Product Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+
+  for (int i = 0; i < product_count; i++) {
+    if (product_sales[i] == best_seller) {
+      printf("| %-3d | %-33s | %-10d |\n", stt, products[i].product_name,
+             best_seller);
+      stt++;
+    }
+  }
+  printf("+-----+-----------------------------------+------------+\n");
+
+  cont();
+}
+
+void print_best_seller_bundles(const Order orders[], int order_count,
+                               const Bundle bundles[], int bundle_count) {
+  int bundle_sales[MAX_BUNDLES] = {0};
+  int best_seller = 0;
+  int stt = 1;
+
+  if (orders == NULL || order_count <= 0 || bundles == NULL ||
+      bundle_count <= 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  for (int i = 0; i < bundle_count; i++) {
+    int b_id = bundles[i].bundle_id;
+    int total = 0;
+    for (int j = 0; j < order_count; j++) {
+      if (orders[j].is_bundle == 1 && orders[j].item_id == b_id) {
+        total += orders[j].quantity;
+      }
+    }
+    bundle_sales[i] = total;
+    if (total > best_seller) {
+      best_seller = total;
+    }
+  }
+
+  if (best_seller == 0) {
+    printf("No bundles have been sold yet.\n");
+    cont();
+    return;
+  }
+
+  printf("\n+-----+-----------------------------------+------------+\n");
+  printf("| %-3s | %-33s | %-10s |\n", "No", "Bundle Name", "Total Sold");
+  printf("+-----+-----------------------------------+------------+\n");
+  for (int i = 0; i < bundle_count; i++) {
+    if (bundle_sales[i] == best_seller) {
+      printf("| %-3d | %-33s | %-10d |\n", stt, bundles[i].bundle_name,
+             best_seller);
+      stt++;
+    }
+  }
+  printf("+-----+-----------------------------------+------------+\n");
+
+  cont();
+}
+
+void alert_low_stock(const Product products[], int product_count) {
+  int check = 1;
+  int stt = 1;
+  const char *border = "+------+--------+--------------------------------------"
+                       "--------------+--------------+";
+
+  printf("%s\n", border);
+  printf("| %-4s | %-6s | %-50s | %-12s |\n", "NO", "ID", "NAME",
+         "CURRENT STOCK");
+  printf("%s\n", border);
+
+  for (int i = 0; i < product_count; i++) {
+    if (products[i].stock_quantity < 5) {
+      check = 0;
+
+      printf("| %-4d | %-6d | %-50.50s | %-12d |\n", stt,
+             products[i].product_id, products[i].product_name,
+             products[i].stock_quantity);
+      stt++;
+    }
+  }
+
+  if (!check) {
+    printf("%s\n", border);
+  } else {
+    printf("\nAll products have sufficient stock levels.\n");
+  }
+
+  cont();
 }
