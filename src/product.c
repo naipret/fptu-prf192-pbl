@@ -284,6 +284,14 @@ void filter_product_by_price(const Product products[], int count,
   if (products == NULL || count < 0) {
     return;
   }
+  if (min_price < 0.0F || max_price < 0.0F) {
+    printf("Error: Price boundaries must be non-negative.\n");
+    return;
+  }
+  if (min_price > max_price) {
+    printf("Error: Minimum price cannot be greater than maximum price.\n");
+    return;
+  }
   int found = 0;
   for (int i = 0; i < count; i++) {
     if (products[i].price >= min_price && products[i].price <= max_price) {
