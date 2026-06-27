@@ -91,7 +91,7 @@ int verify_admin_login(const char *username, const char *password) {
   for (int i = 0; i < input_len; i++) {
     unsigned char c = (unsigned char)password[i];
     unsigned char obfuscated = (unsigned char)(c ^ 0x5A);
-    sprintf(input_hex + (i * 2), "%02X", obfuscated);
+    sprintf(input_hex + ((size_t)i * 2), "%02X", obfuscated);
   }
 
   if (strcmp(stored_hex, input_hex) == 0) {
