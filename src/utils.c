@@ -8,7 +8,6 @@
 void clear_input_buffer(void) {
   int c;
   while ((c = getchar()) != '\n' && c != EOF) {
-    /* discard */
   }
 }
 
@@ -54,7 +53,6 @@ int get_safe_int(const char *prompt, int *out_value) {
     }
 
     int i = 0;
-    // Skip leading whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -82,8 +80,6 @@ int get_safe_int(const char *prompt, int *out_value) {
     int overflow = 0;
     while (buf[i] >= '0' && buf[i] <= '9') {
       val = (val * 10) + (buf[i] - '0');
-      // Detect overflow of 32-bit signed int (Max: 2147483647, Min:
-      // -2147483648)
       if (sign == 1 && val > 2147483647LL) {
         val = 2147483647LL;
         overflow = 1;
@@ -94,7 +90,6 @@ int get_safe_int(const char *prompt, int *out_value) {
       i++;
     }
 
-    // Skip trailing whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -132,7 +127,6 @@ int get_safe_float(const char *prompt, float *out_value) {
     }
 
     int i = 0;
-    // Skip leading whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;
@@ -185,7 +179,6 @@ int get_safe_float(const char *prompt, float *out_value) {
       continue;
     }
 
-    // Skip trailing whitespace
     while (buf[i] != '\0' && (buf[i] == ' ' || buf[i] == '\t' ||
                               buf[i] == '\n' || buf[i] == '\r')) {
       i++;

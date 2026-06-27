@@ -4,11 +4,6 @@
 #include "product.h"
 #include "utils.h"
 
-/**
- * @brief Helper function to validate product Category.
- * @param category The string to validate.
- * @return 1 if valid, 0 otherwise.
- */
 static int is_valid_category(const char *category);
 
 static int is_valid_category(const char *category) {
@@ -32,32 +27,27 @@ int add_product(Product products[], int *count, const Product *new_prod) {
     printf("Error: Product ID must be a positive integer.\n");
     return 0;
   }
-  // Check unique ID
   for (int i = 0; i < *count; i++) {
     if (products[i].product_id == new_prod->product_id) {
       printf("Error: Product ID %d already exists.\n", new_prod->product_id);
       return 0;
     }
   }
-  // Validate Category
   if (!is_valid_category(new_prod->category)) {
     printf("Error: Invalid category '%s'. Category must strictly be one of: "
            "Phone, Laptop, Tablet, Accessory.\n",
            new_prod->category);
     return 0;
   }
-  // Validate Price
   if (new_prod->price <= 0.0F) {
     printf("Error: Price must be a positive float value (> 0.0).\n");
     return 0;
   }
-  // Validate Stock
   if (new_prod->stock_quantity < 0) {
     printf("Error: Stock quantity must be non-negative (>= 0).\n");
     return 0;
   }
 
-  // Copy values safely
   products[*count].product_id = new_prod->product_id;
 
   strncpy(products[*count].product_name, new_prod->product_name,
@@ -86,7 +76,6 @@ int update_product(Product products[], int count, int id,
     printf("Error: Product ID %d not found.\n", id);
     return 0;
   }
-  // If ID is being changed, verify it is unique
   if (updated->product_id != id) {
     if (updated->product_id <= 0) {
       printf("Error: Product ID must be a positive integer.\n");
@@ -99,25 +88,21 @@ int update_product(Product products[], int count, int id,
       }
     }
   }
-  // Validate Category
   if (!is_valid_category(updated->category)) {
     printf("Error: Invalid category '%s'. Category must strictly be one of: "
            "Phone, Laptop, Tablet, Accessory.\n",
            updated->category);
     return 0;
   }
-  // Validate Price
   if (updated->price <= 0.0F) {
     printf("Error: Price must be a positive float value (> 0.0).\n");
     return 0;
   }
-  // Validate Stock
   if (updated->stock_quantity < 0) {
     printf("Error: Stock quantity must be non-negative (>= 0).\n");
     return 0;
   }
 
-  // Apply updates
   products[index].product_id = updated->product_id;
 
   strncpy(products[index].product_name, updated->product_name,
@@ -148,7 +133,6 @@ int delete_product(Product products[], int *count, int id,
     return 0;
   }
 
-  // Check if the product is in any active bundle
   int is_blocked = 0;
   for (int i = 0; i < bundle_count; i++) {
     for (int j = 0; j < bundles[i].product_count; j++) {
@@ -159,7 +143,7 @@ int delete_product(Product products[], int *count, int id,
         }
         printf("- Bundle ID: %d, Name: %s\n", bundles[i].bundle_id,
                bundles[i].bundle_name);
-        break; /* Check next bundle */
+        break;
       }
     }
   }
@@ -168,7 +152,6 @@ int delete_product(Product products[], int *count, int id,
     return 0;
   }
 
-  // Shift elements to the left
   for (int i = index; i < *count - 1; i++) {
     products[i] = products[i + 1];
   }

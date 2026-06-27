@@ -56,4 +56,4 @@ void cont(void);
  */
 int confirm_action(const char *message);
 
-#endif /* UTILS_H */
+#endif

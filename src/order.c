@@ -7,7 +7,6 @@
 #include "product.h"
 #include "utils.h"
 
-/* Static helper function prototypes */
 static int process_product_order(Product products[], int product_count,
                                  const Order *new_order, float *item_price);
 static int process_bundle_order(Product products[], int product_count,
@@ -16,9 +15,6 @@ static int process_bundle_order(Product products[], int product_count,
 static void finalize_order_metadata(Order *ord, const Order *orders, int count,
                                     const Order *new_order, float item_price);
 
-/**
- * @brief Processes and validates a product-based order.
- */
 static int process_product_order(Product products[], int product_count,
                                  const Order *new_order, float *item_price) {
   int prod_idx =
@@ -37,9 +33,6 @@ static int process_product_order(Product products[], int product_count,
   return 1;
 }
 
-/**
- * @brief Processes and validates a bundle-based order.
- */
 static int process_bundle_order(Product products[], int product_count,
                                 const Bundle bundles[], int bundle_count,
                                 const Order *new_order, float *item_price) {
@@ -86,9 +79,6 @@ static int process_bundle_order(Product products[], int product_count,
   return 1;
 }
 
-/**
- * @brief Populates metadata for the newly placed order.
- */
 static void finalize_order_metadata(Order *ord, const Order *orders, int count,
                                     const Order *new_order, float item_price) {
   ord->order_id = new_order->order_id;
@@ -137,13 +127,11 @@ int create_order(Order orders[], int *count, Product products[],
     return 0;
   }
 
-  // 1. Validate quantity
   if (new_order->quantity <= 0) {
     printf("Error: Order quantity must be greater than 0.\n");
     return 0;
   }
 
-  // 2. Validate customer name
   if (strlen(new_order->customer_name) == 0) {
     printf("Error: Customer name cannot be empty.\n");
     return 0;
@@ -151,7 +139,6 @@ int create_order(Order orders[], int *count, Product products[],
 
   float item_price = 0.0F;
 
-  // 3. Process Product/Bundle Order
   if (new_order->is_bundle == 0) {
     if (!process_product_order(products, product_count, new_order,
                                &item_price)) {
@@ -167,7 +154,6 @@ int create_order(Order orders[], int *count, Product products[],
     return 0;
   }
 
-  // 4. Finalize Metadata and append
   finalize_order_metadata(&orders[*count], orders, *count, new_order,
                           item_price);
   (*count)++;

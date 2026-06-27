@@ -69,9 +69,6 @@ static void test_login_loop_retries_then_success(void) {
   printf("Running test_login_loop_retries_then_success...\n");
   setup_test_credentials();
 
-  // 1st attempt: wrong user
-  // 2nd attempt: wrong password
-  // 3rd attempt: correct login
   set_stdin_input("wrong\npassword123\nadmin\nwrong\nadmin\npassword123\n");
   int result = run_admin_login_loop();
   assert(result == 1);
@@ -81,7 +78,6 @@ static void test_login_loop_lockout(void) {
   printf("Running test_login_loop_lockout...\n");
   setup_test_credentials();
 
-  // 3 wrong attempts
   set_stdin_input("admin\nwrong1\nadmin\nwrong2\nadmin\nwrong3\n");
   int result = run_admin_login_loop();
   assert(result == 0);

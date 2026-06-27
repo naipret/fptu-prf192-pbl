@@ -30,9 +30,7 @@ static void restore_stdout(void) {
   }
 }
 
-static void clean_files(void) {
-  unlink("test_output.txt");
-}
+static void clean_files(void) { unlink("test_output.txt"); }
 
 static void test_search_by_name(void) {
   printf("Running test_search_by_name...\n");
@@ -40,8 +38,7 @@ static void test_search_by_name(void) {
   Product list[3] = {
       {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10},
       {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5},
-      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}
-  };
+      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}};
 
   set_stdout_redirect("test_output.txt");
   search_product_by_name(list, 3, "air");
@@ -59,7 +56,6 @@ static void test_search_by_name(void) {
   fclose(f);
   assert(found_ipad == 1);
 
-  // Case insensitivity test
   set_stdout_redirect("test_output.txt");
   search_product_by_name(list, 3, "IPHONE");
   restore_stdout();
@@ -75,7 +71,6 @@ static void test_search_by_name(void) {
   fclose(f);
   assert(found_iphone == 1);
 
-  // No products found test
   set_stdout_redirect("test_output.txt");
   search_product_by_name(list, 3, "Samsung");
   restore_stdout();
@@ -100,8 +95,7 @@ static void test_filter_by_category(void) {
   Product list[3] = {
       {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10},
       {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5},
-      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}
-  };
+      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}};
 
   set_stdout_redirect("test_output.txt");
   filter_product_by_category(list, 3, "Phone");
@@ -119,7 +113,6 @@ static void test_filter_by_category(void) {
   fclose(f);
   assert(found_phone == 1);
 
-  // Invalid category check
   set_stdout_redirect("test_output.txt");
   filter_product_by_category(list, 3, "InvalidCategory");
   restore_stdout();
@@ -144,10 +137,8 @@ static void test_filter_by_price(void) {
   Product list[3] = {
       {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10},
       {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5},
-      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}
-  };
+      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}};
 
-  // Valid price range
   set_stdout_redirect("test_output.txt");
   filter_product_by_price(list, 3, 500.0F, 1000.0F);
   restore_stdout();
@@ -157,14 +148,14 @@ static void test_filter_by_price(void) {
   char buf[512] = {0};
   int count = 0;
   while (fgets(buf, sizeof(buf), f)) {
-    if (strstr(buf, "iPhone 15 Pro") != NULL || strstr(buf, "iPad Air") != NULL) {
+    if (strstr(buf, "iPhone 15 Pro") != NULL ||
+        strstr(buf, "iPad Air") != NULL) {
       count++;
     }
   }
   fclose(f);
   assert(count == 2);
 
-  // Negative bounds validation check
   set_stdout_redirect("test_output.txt");
   filter_product_by_price(list, 3, -100.0F, 500.0F);
   restore_stdout();
@@ -180,7 +171,6 @@ static void test_filter_by_price(void) {
   fclose(f);
   assert(error_neg == 1);
 
-  // Min price > max price validation check
   set_stdout_redirect("test_output.txt");
   filter_product_by_price(list, 3, 500.0F, 200.0F);
   restore_stdout();
@@ -189,7 +179,9 @@ static void test_filter_by_price(void) {
   assert(f != NULL);
   int error_range = 0;
   while (fgets(buf, sizeof(buf), f)) {
-    if (strstr(buf, "Error: Minimum price cannot be greater than maximum price.") != NULL) {
+    if (strstr(buf,
+               "Error: Minimum price cannot be greater than maximum price.") !=
+        NULL) {
       error_range = 1;
     }
   }
@@ -205,26 +197,25 @@ static void test_bubble_sort_price(void) {
   Product list[3] = {
       {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10},
       {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5},
-      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}
-  };
+      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}};
 
   set_stdout_redirect("test_output.txt");
-  // Sort ascending
+
   bubble_sort_by_price(list, 3, 1);
   restore_stdout();
 
-  assert(list[0].product_id == 103); // iPad Air ($599.99)
-  assert(list[1].product_id == 101); // iPhone 15 Pro ($999.99)
-  assert(list[2].product_id == 102); // ThinkPad ($1499.99)
+  assert(list[0].product_id == 103);
+  assert(list[1].product_id == 101);
+  assert(list[2].product_id == 102);
 
   set_stdout_redirect("test_output.txt");
-  // Sort descending
+
   bubble_sort_by_price(list, 3, 0);
   restore_stdout();
 
-  assert(list[0].product_id == 102); // ThinkPad ($1499.99)
-  assert(list[1].product_id == 101); // iPhone 15 Pro ($999.99)
-  assert(list[2].product_id == 103); // iPad Air ($599.99)
+  assert(list[0].product_id == 102);
+  assert(list[1].product_id == 101);
+  assert(list[2].product_id == 103);
 
   printf("test_bubble_sort_price passed!\n");
 }
@@ -235,16 +226,15 @@ static void test_bubble_sort_name(void) {
   Product list[3] = {
       {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10},
       {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5},
-      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}
-  };
+      {103, "iPad Air", "Tablet", "Apple", 599.99F, 8}};
 
   set_stdout_redirect("test_output.txt");
   bubble_sort_by_name(list, 3);
   restore_stdout();
 
-  assert(strcmp(list[0].product_name, "ThinkPad X1 Carbon") == 0); // T
-  assert(strcmp(list[1].product_name, "iPad Air") == 0);          // i
-  assert(strcmp(list[2].product_name, "iPhone 15 Pro") == 0);     // iP
+  assert(strcmp(list[0].product_name, "ThinkPad X1 Carbon") == 0);
+  assert(strcmp(list[1].product_name, "iPad Air") == 0);
+  assert(strcmp(list[2].product_name, "iPhone 15 Pro") == 0);
 
   printf("test_bubble_sort_name passed!\n");
 }

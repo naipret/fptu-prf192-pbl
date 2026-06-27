@@ -4,12 +4,6 @@
 
 #include "file_io.h"
 
-/* Static helper functions for safe line reading and parsing */
-
-/**
- * @brief Strips trailing carriage return and newline characters from a string.
- * @param str The string to strip.
- */
 static void strip_newline(char *str) {
   size_t len = strlen(str);
   while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r')) {
@@ -18,13 +12,6 @@ static void strip_newline(char *str) {
   }
 }
 
-/**
- * @brief Reads a line from a file and strips the newline.
- * @param f The file pointer.
- * @param dest The destination buffer.
- * @param max_len The maximum length of the destination buffer.
- * @return 1 on success, 0 on failure.
- */
 static int read_line_file(FILE *f, char *dest, size_t max_len) {
   if (fgets(dest, (int)max_len, f) == NULL) {
     return 0;
@@ -33,12 +20,6 @@ static int read_line_file(FILE *f, char *dest, size_t max_len) {
   return 1;
 }
 
-/**
- * @brief Reads an integer from the next line of a file.
- * @param f The file pointer.
- * @param out The pointer to store the parsed integer.
- * @return 1 on success, 0 on failure.
- */
 static int read_int_file(FILE *f, int *out) {
   char buf[128];
   if (!read_line_file(f, buf, sizeof(buf))) {
@@ -53,12 +34,6 @@ static int read_int_file(FILE *f, int *out) {
   return 1;
 }
 
-/**
- * @brief Reads a float from the next line of a file.
- * @param f The file pointer.
- * @param out The pointer to store the parsed float.
- * @return 1 on success, 0 on failure.
- */
 static int read_float_file(FILE *f, float *out) {
   char buf[128];
   if (!read_line_file(f, buf, sizeof(buf))) {
@@ -87,15 +62,6 @@ static int is_file_non_empty(const char *path) {
   return size > 0 ? 1 : 0;
 }
 
-/**
- * @brief Performs the transactional rename of active and backup database files.
- * Removes the old backup if it exists, renames active to backup, and promotes
- * temp to active.
- * @param active_path The path to the active file.
- * @param tmp_path The path to the temp file.
- * @param bak_path The path to the backup file.
- * @return 1 on success, 0 on failure.
- */
 static int commit_transaction(const char *active_path, const char *tmp_path,
                               const char *bak_path) {
   int active_existed = 0;
@@ -118,14 +84,6 @@ static int commit_transaction(const char *active_path, const char *tmp_path,
   return 1;
 }
 
-/**
- * @brief Verifies if the active file exists and is not empty. If missing or
- * empty, copies backup to active.
- * @param active_path The path to the active file.
- * @param bak_path The path to the backup file.
- * @return 1 if active file is ready or restored, 0 if backup recovery was
- * attempted and failed or files do not exist.
- */
 static int ensure_active_file(const char *active_path, const char *bak_path) {
   FILE *f = fopen(active_path, "r");
   if (f != NULL) {
@@ -169,11 +127,6 @@ static int ensure_active_file(const char *active_path, const char *bak_path) {
   return 0;
 }
 
-/* Static internal loader functions */
-
-/**
- * @brief Internal helper to load products from a given file.
- */
 static int load_products_internal(Product products[], int *product_count,
                                   const char *filename) {
   FILE *f = fopen(filename, "r");
@@ -208,9 +161,6 @@ static int load_products_internal(Product products[], int *product_count,
   return 1;
 }
 
-/**
- * @brief Internal helper to load bundles from a given file.
- */
 static int load_bundles_internal(Bundle bundles[], int *bundle_count,
                                  const char *filename) {
   FILE *f = fopen(filename, "r");
@@ -255,9 +205,6 @@ static int load_bundles_internal(Bundle bundles[], int *bundle_count,
   return 1;
 }
 
-/**
- * @brief Internal helper to load orders from a given file.
- */
 static int load_orders_internal(Order orders[], int *order_count,
                                 const char *filename) {
   FILE *f = fopen(filename, "r");
@@ -292,9 +239,6 @@ static int load_orders_internal(Order orders[], int *order_count,
   return 1;
 }
 
-/**
- * @brief Internal helper to load admin credentials from a given file.
- */
 static int load_admin_internal(AdminCredentials *admin, const char *filename) {
   FILE *f = fopen(filename, "r");
   if (f == NULL) {
@@ -316,8 +260,6 @@ static int load_admin_internal(AdminCredentials *admin, const char *filename) {
   return 1;
 }
 
-/* Public API Implementations */
-
 int save_database(const Product products[], int product_count,
                   const Bundle bundles[], int bundle_count,
                   const Order orders[], int order_count,
@@ -335,7 +277,6 @@ int save_database(const Product products[], int product_count,
     return 0;
   }
 
-  /* 1. Write Products to products.tmp */
   FILE *fp = fopen("products.tmp", "w");
   if (fp == NULL) {
     return 0;
@@ -355,7 +296,6 @@ int save_database(const Product products[], int product_count,
     return 0;
   }
 
-  /* 2. Write Bundles to bundles.tmp */
   FILE *fb = fopen("bundles.tmp", "w");
   if (fb == NULL) {
     remove("products.tmp");
@@ -379,7 +319,6 @@ int save_database(const Product products[], int product_count,
     return 0;
   }
 
-  /* 3. Write Orders to orders.tmp */
   FILE *fo = fopen("orders.tmp", "w");
   if (fo == NULL) {
     remove("products.tmp");
@@ -404,7 +343,6 @@ int save_database(const Product products[], int product_count,
     return 0;
   }
 
-  /* 4. Write Admin credentials to admin.tmp */
   FILE *fa = fopen("admin.tmp", "w");
   if (fa == NULL) {
     remove("products.tmp");
@@ -441,7 +379,6 @@ int save_database(const Product products[], int product_count,
     return 0;
   }
 
-  /* 5. Commit transactions for all database files */
   int success = 1;
   if (!commit_transaction("products.txt", "products.tmp", "products.bak")) {
     success = 0;
@@ -470,7 +407,6 @@ int load_database(Product products[], int *product_count, Bundle bundles[],
 
   int overall_success = 1;
 
-  /* 1. Load Products */
   (void)ensure_active_file("products.txt", "products.bak");
   if (!load_products_internal(products, product_count, "products.txt")) {
     printf(
@@ -494,7 +430,6 @@ int load_database(Product products[], int *product_count, Bundle bundles[],
     }
   }
 
-  /* 2. Load Bundles */
   (void)ensure_active_file("bundles.txt", "bundles.bak");
   if (!load_bundles_internal(bundles, bundle_count, "bundles.txt")) {
     printf(
@@ -518,7 +453,6 @@ int load_database(Product products[], int *product_count, Bundle bundles[],
     }
   }
 
-  /* 3. Load Orders */
   (void)ensure_active_file("orders.txt", "orders.bak");
   if (!load_orders_internal(orders, order_count, "orders.txt")) {
     printf("Warning: 'orders.txt' load failed or corrupt. Restoring backup.\n");
@@ -541,7 +475,6 @@ int load_database(Product products[], int *product_count, Bundle bundles[],
     }
   }
 
-  /* 4. Load Admin Credentials */
   (void)ensure_active_file("admin.txt", "admin.bak");
   if (!load_admin_internal(admin, "admin.txt")) {
     printf("Warning: 'admin.txt' load failed or corrupt. Restoring backup.\n");

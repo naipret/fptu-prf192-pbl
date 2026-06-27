@@ -102,4 +102,4 @@ void bubble_sort_by_price(Product products[], int count, int ascending);
  */
 void bubble_sort_by_name(Product products[], int count);
 
-#endif /* PRODUCT_H */
+#endif

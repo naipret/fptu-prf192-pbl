@@ -37,4 +37,4 @@ void run_admin_registration_wizard(void);
  */
 int run_admin_login_loop(void);
 
-#endif /* ADMIN_H */
+#endif

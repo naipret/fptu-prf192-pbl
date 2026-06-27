@@ -671,7 +671,6 @@ void run_menu_system(void) {
   load_database(products, &product_count, bundles, &bundle_count, orders,
                 &order_count, &admin);
 
-  /* Initialize sample products if empty */
   if (product_count == 0) {
     Product p1 = {101, "iPhone 15 Pro", "Phone", "Apple", 999.99F, 10};
     Product p2 = {102, "ThinkPad X1 Carbon", "Laptop", "Lenovo", 1499.99F, 5};

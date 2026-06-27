@@ -26,7 +26,6 @@ static void test_save_load_success(void) {
   printf("Running test_save_load_success...\n");
   clean_test_files();
 
-  // 1. Prepare sample data
   Product products[MAX_PRODUCTS];
   int product_count = 2;
   memset(products, 0, sizeof(products));
@@ -72,16 +71,14 @@ static void test_save_load_success(void) {
   strcpy(admin.password, "securesaver123");
   admin.is_setup = 1;
 
-  // 2. Save database
-  int save_res = save_database(products, product_count, bundles, bundle_count, orders, order_count, &admin);
+  int save_res = save_database(products, product_count, bundles, bundle_count,
+                               orders, order_count, &admin);
   assert(save_res == 1);
 
-  // Verify that the files exist and are not empty
   FILE *f = fopen("products.txt", "r");
   assert(f != NULL);
   fclose(f);
 
-  // 3. Load database back into empty arrays
   Product loaded_products[MAX_PRODUCTS];
   int loaded_product_count = 0;
   Bundle loaded_bundles[MAX_BUNDLES];
@@ -94,13 +91,11 @@ static void test_save_load_success(void) {
   memset(loaded_orders, 0, sizeof(loaded_orders));
   memset(&loaded_admin, 0, sizeof(loaded_admin));
 
-  int load_res = load_database(loaded_products, &loaded_product_count,
-                               loaded_bundles, &loaded_bundle_count,
-                               loaded_orders, &loaded_order_count,
-                               &loaded_admin);
+  int load_res = load_database(
+      loaded_products, &loaded_product_count, loaded_bundles,
+      &loaded_bundle_count, loaded_orders, &loaded_order_count, &loaded_admin);
   assert(load_res == 1);
 
-  // 4. Assert correctness
   assert(loaded_product_count == 2);
   assert(loaded_products[0].product_id == 101);
   assert(strcmp(loaded_products[0].product_name, "Smartphone X") == 0);
@@ -143,7 +138,6 @@ static void test_load_recovery_on_corruption(void) {
   printf("Running test_load_recovery_on_corruption...\n");
   clean_test_files();
 
-  // 1. Setup initial active and backup files
   Product products[MAX_PRODUCTS];
   int product_count = 1;
   memset(products, 0, sizeof(products));
@@ -164,26 +158,23 @@ static void test_load_recovery_on_corruption(void) {
   strcpy(admin.password, "securesaver123");
   admin.is_setup = 1;
 
-  // Save normally (creates active products.txt and backup products.bak from a subsequent save, etc.)
-  int save_res = save_database(products, product_count, bundles, bundle_count, orders, order_count, &admin);
+  int save_res = save_database(products, product_count, bundles, bundle_count,
+                               orders, order_count, &admin);
   assert(save_res == 1);
 
-  // Trigger a second save so that products.bak is created
   products[0].stock_quantity = 40;
-  save_res = save_database(products, product_count, bundles, bundle_count, orders, order_count, &admin);
+  save_res = save_database(products, product_count, bundles, bundle_count,
+                           orders, order_count, &admin);
   assert(save_res == 1);
 
-  // Verify backup exists
   FILE *fbak = fopen("products.bak", "r");
   assert(fbak != NULL);
   fclose(fbak);
 
-  // 2. Corrupt active products.txt by making it empty
   FILE *fcorr = fopen("products.txt", "w");
   assert(fcorr != NULL);
   fclose(fcorr);
 
-  // 3. Load database. It should trigger warning and restore from backup.
   Product loaded_products[MAX_PRODUCTS];
   int loaded_product_count = 0;
   Bundle loaded_bundles[MAX_BUNDLES];
@@ -196,18 +187,15 @@ static void test_load_recovery_on_corruption(void) {
   memset(loaded_orders, 0, sizeof(loaded_orders));
   memset(&loaded_admin, 0, sizeof(loaded_admin));
 
-  int load_res = load_database(loaded_products, &loaded_product_count,
-                               loaded_bundles, &loaded_bundle_count,
-                               loaded_orders, &loaded_order_count,
-                               &loaded_admin);
+  int load_res = load_database(
+      loaded_products, &loaded_product_count, loaded_bundles,
+      &loaded_bundle_count, loaded_orders, &loaded_order_count, &loaded_admin);
   assert(load_res == 1);
 
-  // 4. Verify data is recovered from the backup state (stock_quantity == 45)
   assert(loaded_product_count == 1);
   assert(loaded_products[0].product_id == 101);
   assert(loaded_products[0].stock_quantity == 45);
 
-  // Check that products.txt is indeed restored and not empty now
   FILE *frestored = fopen("products.txt", "r");
   assert(frestored != NULL);
   fseek(frestored, 0, SEEK_END);

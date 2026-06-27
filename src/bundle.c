@@ -30,7 +30,6 @@ int create_bundle(Bundle bundles[], int *count, const Bundle *new_bundle) {
     cont();
     return 0;
   }
-  // Verify unique product IDs in the new bundle
   for (int i = 0; i < new_bundle->product_count; i++) {
     for (int j = i + 1; j < new_bundle->product_count; j++) {
       if (new_bundle->product_ids[i] == new_bundle->product_ids[j]) {
@@ -109,7 +108,6 @@ int remove_product_from_bundle(Bundle bundles[], int *bundle_count,
     }
     return 0;
   }
-  // Standard removal and shift
   for (int i = index; i < cnt - 1; i++) {
     bundle->product_ids[i] = bundle->product_ids[i + 1];
   }
@@ -145,7 +143,6 @@ int get_virtual_bundle_stock(const Bundle *bundle, const Product products[],
     int prod_id = bundle->product_ids[i];
     int prod_idx = find_product_by_id(products, product_count, prod_id);
     if (prod_idx == -1) {
-      // If a product inside the bundle doesn't exist, we consider stock to be 0
       return 0;
     }
     int stock = products[prod_idx].stock_quantity;
@@ -166,7 +163,6 @@ void display_all_bundles(const Bundle bundles[], int count,
     cont();
     return;
   }
-  // +----+---------------------------+-------------+---------------+---------------+
   char border[] = "+----+---------------------------+-------------+------------"
                   "---+---------------+";
 

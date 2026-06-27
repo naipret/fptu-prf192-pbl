@@ -17,4 +17,4 @@ void display_admin_menu(void);
  */
 void run_menu_system(void);
 
-#endif /* MENU_H */
+#endif

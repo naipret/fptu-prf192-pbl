@@ -82,7 +82,6 @@ int verify_admin_login(const char *username, const char *password) {
     return 0;
   }
 
-  /* Obfuscate the input password to compare directly */
   char input_hex[(MAX_PASSWORD_LEN * 2) + 1] = {0};
   int input_len = (int)strlen(password);
   if (input_len >= MAX_PASSWORD_LEN) {
@@ -91,7 +90,7 @@ int verify_admin_login(const char *username, const char *password) {
   for (int i = 0; i < input_len; i++) {
     unsigned char c = (unsigned char)password[i];
     unsigned char obfuscated = (unsigned char)(c ^ 0x5A);
-    sprintf(input_hex + (i * 2), "%02X", obfuscated);
+    sprintf(input_hex + (size_t)(i * 2), "%02X", obfuscated);
   }
 
   if (strcmp(stored_hex, input_hex) == 0) {

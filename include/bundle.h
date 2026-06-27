@@ -79,4 +79,4 @@ void display_all_bundles(const Bundle bundles[], int count,
  */
 int find_bundle_by_id(const Bundle bundles[], int count, int id);
 
-#endif /* BUNDLE_H */
+#endif
