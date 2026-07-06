@@ -53,7 +53,7 @@ typedef struct {
   char order_date[MAX_DATE_LEN];
 } Order;
 
-#endif /* TYPES_H */
+#endif
 
 #ifndef ADMIN_H
 #define ADMIN_H
